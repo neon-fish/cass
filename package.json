@@ -1,0 +1,22 @@
+{
+  "name": "@neonfish/cass",
+  "version": "0.1.0",
+  "description": "",
+  "main": "dist/index.js",
+  "bin": {
+    "cass": ""
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ed Johnson, Neon Fish Software",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "openai": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.5",
+    "typescript": "^5.0.2"
+  }
+}
