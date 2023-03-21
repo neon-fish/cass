@@ -16,11 +16,16 @@
   "author": "Ed Johnson, Neon Fish Software",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^4.1.2",
     "dotenv": "^16.0.3",
-    "openai": "^3.2.1"
+    "openai": "^3.2.1",
+    "ora": "^5.4.1",
+    "yargs": "^17.7.1"
   },
   "devDependencies": {
     "@types/node": "^18.15.5",
+    "@types/yargs": "^17.0.23",
+    "rimraf": "^4.4.0",
     "typescript": "^5.0.2"
   }
 }
