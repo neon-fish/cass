@@ -3,10 +3,14 @@
   "version": "0.1.0",
   "description": "",
   "main": "dist/index.js",
+  "preferGlobal": true,
   "bin": {
-    "cass": ""
+    "cass": "./dist/cli/cli.js"
   },
   "scripts": {
+    "dev": "tsc --watch --preserveWatchOutput",
+    "build": "tsc",
+    "start": "node dist/cli/cli.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Ed Johnson, Neon Fish Software",
