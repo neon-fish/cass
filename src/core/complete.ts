@@ -1,9 +1,6 @@
 import { Configuration, OpenAIApi } from "openai";
-import * as dotenv from "dotenv";
-import { Utils } from "./utils";
 import { inspect } from "util";
-
-dotenv.config();
+import { Utils } from "./utils";
 
 const PROMPT_PREFIX = `You are a virtual assistant called Cass. You are friendly and helpful. You can generate code and terminal commands, answer questions, generate text, and help with the user's work.
 
@@ -12,12 +9,11 @@ const PROMPT_SUFFIX = `
 
 CASS: `;
 
-export async function doAIShit(settings: {
-  prompt: string,
+export async function completePrompt(prompt: string, opts?: {
   verbose?: boolean,
 }) {
 
-  const { prompt, verbose } = settings;
+  const verbose = Boolean(opts?.verbose);
   if (!prompt) {
     throw new Error("No prompt provided");
   }

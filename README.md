@@ -1,13 +1,17 @@
 
 # Cass
 
-A ChatGPT-powered virtual assistant in the console (**C**onsole **Ass**istant)
+A ChatGPT-powered assistant in the console (**C**onsole **Ass**istant)
 
 ## Quickstart
 
 ```
 $ npm i -g @neonfish/cass
 ```
+
+Set your OpenAI API key
+
+> TODO, use.env in the project root for now
 
 Simply enter the prompt in the console:
 
@@ -30,3 +34,10 @@ help you with?
 
 - Prompts may or may not be wrapped in quotation marks. If the prompt contains special characters, quotation marks must be used to be interpreted by the terminal correctly.
 - Set the `--verbose` or `-v` flags to true, "true", or 1 to enable verbose output
+
+## Development
+
+1. Clone the repo
+2. Link with `npm link`
+3. Watch source files and rebuild with `npm run dev`
+4. Run the updated CLI with `cass <prompt>`

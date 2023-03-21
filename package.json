@@ -1,7 +1,7 @@
 {
   "name": "@neonfish/cass",
   "version": "0.1.0",
-  "description": "",
+  "description": "A ChatGPT-powered virtual assistant in the console",
   "main": "dist/index.js",
   "preferGlobal": true,
   "bin": {
@@ -9,8 +9,9 @@
   },
   "scripts": {
     "dev": "tsc --watch --preserveWatchOutput",
-    "build": "tsc",
+    "build": "rimraf dist && tsc",
     "start": "node dist/cli/cli.js",
+    "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Ed Johnson, Neon Fish Software",
