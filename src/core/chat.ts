@@ -10,13 +10,16 @@ export async function respondToChat(message: string, opts?: {
 
   const verbose = Boolean(opts?.verbose);
   if (!message) {
-    // throw new Error("No message provided");
     return "No prompt";
-    // return undefined;
+  }
+
+  const apiKey = Utils.apiKey();
+  if (!apiKey) {
+    return `No API key!\nSee: https://platform.openai.com/docs/api-reference/authentication \nThen set the key using:\n$ cass --api-key=<your-new-api-key>`;
   }
 
   const configuration = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: apiKey,
   });
 
   const openai = new OpenAIApi(configuration);
@@ -35,7 +38,7 @@ export async function respondToChat(message: string, opts?: {
   if (verbose) {
     Utils.logVerboseLines(
       "",
-      `API KEY: ${process.env.OPENAI_API_KEY}`,
+      `API KEY: ${apiKey}`,
       `TEMPERATURE: ${temperature}`,
       `MAX TOKENS: ${maxTokens}`,
       `HISTORY: ${history.length} messages`,

@@ -5,6 +5,10 @@ import { ChatCompletionRequestMessage } from "openai";
 import { homedir, platform } from "os";
 import { join } from "path";
 
+const HISTORY_FILENAME = "history.json";
+const API_KEY_FILENAME = "openai-api-key";
+const API_KEY_PROCESS_KEY = "OPENAI_API_KEY";
+
 export class Utils {
 
   static argIsTrue(arg: any): boolean {
@@ -34,6 +38,7 @@ export class Utils {
     }
   }
 
+  /** Get the Cass config dir path, and ensure the dir exists */
   static getCassDir() {
     const cassDir = join(homedir(), ".cass");
     if (!existsSync(cassDir)) {
@@ -49,7 +54,7 @@ export class Utils {
 
   static readHistory(): ChatCompletionRequestMessage[] {
     const cassDir = this.getCassDir();
-    const historyFilePath = join(cassDir, "history.json");
+    const historyFilePath = join(cassDir, HISTORY_FILENAME);
 
     if (existsSync(historyFilePath)) {
       const historyFileStr = readFileSync(historyFilePath, { encoding: "utf-8" });
@@ -62,7 +67,7 @@ export class Utils {
 
   static addToHistory(messages: ChatCompletionRequestMessage[]) {
     const dir = this.getCassDir();
-    const historyFilePath = join(dir, "history.json");
+    const historyFilePath = join(dir, HISTORY_FILENAME);
 
     let existing: ChatCompletionRequestMessage[] = [];
     if (existsSync(historyFilePath)) {
@@ -94,17 +99,45 @@ export class Utils {
 
   static clearHistory() {
     const cassDir = this.getCassDir();
-    const historyFilePath = join(cassDir, "history.json");
+    const historyFilePath = join(cassDir, HISTORY_FILENAME);
 
     if (existsSync(historyFilePath)) {
-      const newFileName = `history-archived-${new Date().toISOString()}`
-        .replace(/:/g, "-")
-        // .split(".")[0]
-      const newFilePath = join(cassDir, `${newFileName}.json`);
+      const newFileName = HISTORY_FILENAME.replace(
+        ".json",
+        `-archived-${new Date().toISOString()}`.replace(/:/g, "-") + ".json",
+      );
+      const newFilePath = join(cassDir, newFileName);
       renameSync(historyFilePath, newFilePath);
     } else {
       return [];
     }
+  }
+
+  static storeApiKey(apiKey: string) {
+    const cassDir = this.getCassDir();
+    const apiKeyFilePath = join(cassDir, API_KEY_FILENAME);
+    writeFileSync(apiKeyFilePath, apiKey + "\n", { encoding: "utf-8" });
+  }
+
+  static retrieveApiKey(): string | undefined {
+    const cassDir = this.getCassDir();
+    const apiKeyFilePath = join(cassDir, API_KEY_FILENAME);
+    if (existsSync(apiKeyFilePath)) {
+      const apiKeyFileString = readFileSync(apiKeyFilePath, { encoding: "utf-8" });
+      return apiKeyFileString.trim();
+    }
+    return undefined;
+  }
+
+  static apiKey(): string | undefined {
+
+    const fromEnv = process.env[API_KEY_PROCESS_KEY];
+    if (fromEnv) return fromEnv;
+    
+    const fromFile = this.retrieveApiKey();
+    if (fromFile) return fromFile;
+
+    return undefined;
   }
 
 }

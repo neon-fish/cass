@@ -12,18 +12,38 @@ import { Utils } from "../core/utils";
 
 dotenv.config();
 
+const argsParser = yargs(hideBin(process.argv))
+  .usage(`USAGE:\nSimply type a question or instruction. Wrap in quotes if the prompt contains special characters. Example:\n$ cass tell me a joke about programming`)
+  .boolean("verbose")
+  .alias("v", "verbose")
+  .describe("verbose", "Show verbose information for debugging")
+  .boolean("cassdir")
+  .alias("cassdir", "cass-dir")
+  .describe("cassdir", "Open the Cass config dir in file explorer")
+  .boolean("dry")
+  .alias("dry", "dry-run")
+  .describe("dry", "Do not send a request to the API")
+  .boolean("clear")
+  .alias("cls", "clear")
+  .describe("clear", "Archive the recent history")
+  .alias("key", "api-key")
+  .describe("api-key", "Use and store the OpenAI API key")
+  .help('h').alias('h', 'help')
+  .epilog('(https://github.com/neon-fish/cass)')
+  ;
+
 async function cli() {
-  
-  const argv = await yargs(hideBin(process.argv)).argv;
-  
+
+  const argv = await argsParser.argv;
+
   const prompt = argv._.map(p => p.toString().trim()).join(" ");
-  const helpF = Utils.argIsTrue(argv["help"] || argv["h"]);
-  const verboseF = Utils.argIsTrue(argv["verbose"] || argv["v"]);
+  const verboseF = Boolean(argv.verbose);
   const modelsF = Utils.argIsTrue(argv["model"] || argv["models"] || argv["m"]);
-  const cassDirF = Utils.argIsTrue(argv["cassDir"] || argv["cassdir"] || argv["cass-dir"]);
-  const dryRunF = Utils.argIsTrue(argv["dryRun"] || argv["dry"]);
-  const clearF = Utils.argIsTrue(argv["clear"] || argv["cls"]);
-  
+  const cassDirF = Boolean(argv.cassDir);
+  const dryRunF = Boolean(argv.dryRun);
+  const clearF = Boolean(argv.clear);
+  const apiKey = argv.apiKey?.toString() ? argv.apiKey.toString() : undefined;
+
   if (verboseF) {
     Utils.logVerboseLines(
       "",
@@ -31,7 +51,6 @@ async function cli() {
       "",
       `ARGV: ${inspect(argv)}`,
       `PROMPT: "${prompt}"`,
-      `🚩 HELP: ${helpF}`,
       `🚩 VERBOSE: ${verboseF}`,
       `🚩 MODELS: ${modelsF}`,
       `🚩 CASS DIR: ${cassDirF}`,
@@ -40,12 +59,22 @@ async function cli() {
     );
   }
 
+  if (cassDirF) {
+    Utils.openCassDir();
+    console.log(chalk.gray("(opening Cass dir)"));
+  }
+  if (clearF) {
+    Utils.clearHistory();
+    console.log(chalk.gray("(cleared history)"));
+  }
+  if (apiKey) {
+    Utils.storeApiKey(apiKey);
+    console.log(chalk.gray("(stored API key)"));
+  }
+
   console.log("");
   console.log(chalk.cyanBright(`> ${prompt}`));
   console.log("");
-
-  if (cassDirF) Utils.openCassDir();
-  if (clearF) Utils.clearHistory();
 
   const spinnerText = dryRunF ? "thinking (dry run)..." : "thinking...";
   const spinner = ora({
@@ -69,7 +98,7 @@ async function cli() {
     return undefined
   });
   spinner.stop();
-  
+
   if (result) {
     let resultText = "";
 

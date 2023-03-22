@@ -9,11 +9,13 @@ A ChatGPT-powered assistant in the console (**C**onsole **Ass**istant)
 $ npm i -g @neonfish/cass
 ```
 
-Set your OpenAI API key
+Set your OpenAI API key: (Alternatively, add the environment variable `OPENAI_API_KEY`)
 
-> TODO, use.env in the project root for now
+```
+$ cass --api-key=<your-openai-api-key>
+```
 
-Simply enter the prompt in the console:
+Then simply enter the prompt in the console:
 
 ```
 $ cass give me the first 10 fibonacci numbers
@@ -32,8 +34,13 @@ help you with?
 
 ## Options
 
+Run `cass --help` for more instructions and options.
+
 - Prompts may or may not be wrapped in quotation marks. If the prompt contains special characters, quotation marks must be used to be interpreted by the terminal correctly.
-- Set the `--verbose` or `-v` flags to true, "true", or 1 to enable verbose output
+- Pass the `--verbose` or `-v` flag to enable verbose output
+- Pass the `--dry` or `--dry-run` flag to disable sending an actrual API request
+- Pass the `--cls` or `--clear` flag to archive the recent message history
+- Pass the `--cass-dir` flag to open the config directory in file explorer
 
 ## Development
 
