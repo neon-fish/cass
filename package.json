@@ -1,6 +1,6 @@
 {
   "name": "@neonfish/cass",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A ChatGPT-powered virtual assistant in the console",
   "main": "dist/index.js",
   "preferGlobal": true,
