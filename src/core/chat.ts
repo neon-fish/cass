@@ -3,6 +3,8 @@ import { inspect } from "util";
 import { Utils } from "./utils";
 
 const SYSTEM_MESSAGE = `You are a virtual assistant called Cass. You are friendly and helpful. You can generate code and terminal commands, answer questions, generate text, and help the user with their work.`;
+/** Estimate */
+const CHARS_PER_TOKEN = 4;
 
 export async function respondToChat(message: string, opts?: {
   verbose?: boolean,
@@ -25,24 +27,26 @@ export async function respondToChat(message: string, opts?: {
   const openai = new OpenAIApi(configuration);
 
   const temperature = 0.5;
-  const maxTokens = 2048;
+  const maxResponseTokens = 1500;
 
   const totalTokens = 4096;
-  const systemTokens = SYSTEM_MESSAGE.length / 3; // over estimate
-  const messageTokens = message.length / 3; // over estimate
-  const historyTokens = totalTokens - (maxTokens + systemTokens + messageTokens);
-  const historyCharacters = historyTokens * 4;
+  const systemTokens = (SYSTEM_MESSAGE.length / CHARS_PER_TOKEN) * 1.2; // overestimate
+  const messageTokens = (message.length / CHARS_PER_TOKEN) * 1.2; // overestimate
+  const historyTokensAvailable = totalTokens - (maxResponseTokens + systemTokens + messageTokens);
+  const historyCharacters = (historyTokensAvailable * CHARS_PER_TOKEN) * 0.8; // underestimate
 
-  const history = Utils.getLatestHistory(Utils.readHistory(), historyCharacters);
+  const allHistory = Utils.readHistory();
+  const latesthistory = Utils.getLatestHistory(allHistory, historyCharacters);
 
   if (verbose) {
     Utils.logVerboseLines(
       "",
       `API KEY: ${apiKey}`,
       `TEMPERATURE: ${temperature}`,
-      `MAX TOKENS: ${maxTokens}`,
-      `HISTORY: ${history.length} messages`,
+      `MAX TOKENS: ${maxResponseTokens}`,
       `SYSTEM: ${SYSTEM_MESSAGE}`,
+      `TOTAL HISTORY: ${allHistory.length} messages (${allHistory.reduce((prev, curr, index) => prev + curr.content.length, 0)} characters)`,
+      `LATEST HISTORY: ${latesthistory.length} messages (${latesthistory.reduce((prev, curr, index) => prev + curr.content.length, 0)} characters)`,
       "",
     );
   }
@@ -50,10 +54,10 @@ export async function respondToChat(message: string, opts?: {
   const response = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     temperature: temperature,
-    max_tokens: maxTokens,
+    max_tokens: maxResponseTokens,
     messages: [
       { role: "system", content: SYSTEM_MESSAGE },
-      ...history,
+      ...latesthistory,
       { role: "user", content: message },
     ],
   });
