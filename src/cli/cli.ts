@@ -28,6 +28,8 @@ const argsParser = yargs(hideBin(process.argv))
   .describe("clear", "Archive the recent history")
   .alias("key", "api-key")
   .describe("api-key", "Use and store the OpenAI API key")
+  .boolean("update")
+  .describe("update", "Update the globally-installed NPM package")
   .help('h').alias('h', 'help')
   .epilog('(https://github.com/neon-fish/cass)')
   ;
@@ -43,6 +45,7 @@ async function cli() {
   const dryRunF = Boolean(argv.dryRun);
   const clearF = Boolean(argv.clear);
   const apiKey = argv.apiKey?.toString() ? argv.apiKey.toString() : undefined;
+  const updateF = Boolean(argv.update);
 
   if (verboseF) {
     Utils.logVerboseLines(
@@ -51,14 +54,21 @@ async function cli() {
       "",
       `ARGV: ${inspect(argv)}`,
       `PROMPT: "${prompt}"`,
+      `API KEY: "${apiKey}"`,
       `🚩 VERBOSE: ${verboseF}`,
       `🚩 MODELS: ${modelsF}`,
       `🚩 CASS DIR: ${cassDirF}`,
       `🚩 DRY RUN: ${dryRunF}`,
       `🚩 CLEAR: ${clearF}`,
+      `🚩 UPDATE: ${updateF}`,
     );
   }
 
+  if (updateF) {
+    const updated = await Utils.update();
+    // console.log(chalk.gray("(opening Cass dir)"));
+    if (updated) return;
+  }
   if (cassDirF) {
     Utils.openCassDir();
     console.log(chalk.gray("(opening Cass dir)"));

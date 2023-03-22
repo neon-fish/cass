@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { exec } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "fs";
+import inquirer from "inquirer";
 import { ChatCompletionRequestMessage } from "openai";
 import { homedir, platform } from "os";
 import { join } from "path";
@@ -138,6 +139,33 @@ export class Utils {
     if (fromFile) return fromFile;
 
     return undefined;
+  }
+
+  static async update(): Promise<boolean> {
+
+    const confimationRes = await inquirer.prompt({
+      type: "confirm",
+      name: "confirmed",
+      message: `Run "npm i -g @neonfish/cass@latest" to install latest version?`,
+      default: true,
+    });
+    if (!confimationRes.confirmed) {
+      return false;
+    }
+
+    return new Promise<boolean>((resolve, reject) => {
+      
+      exec("npm i -g @neonfish/cass@latest", (error, stdout, stderr) => {
+        if (error !== null) {
+          console.log(chalk.redBright(`Error updating global package:`, error));
+          return false;
+        }
+        console.log(stdout);
+        return true;
+      });
+
+    });
+    
   }
 
 }

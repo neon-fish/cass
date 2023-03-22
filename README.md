@@ -36,11 +36,15 @@ help you with?
 
 Run `cass --help` for more instructions and options.
 
-- Prompts may or may not be wrapped in quotation marks. If the prompt contains special characters, quotation marks must be used to be interpreted by the terminal correctly.
-- Pass the `--verbose` or `-v` flag to enable verbose output
-- Pass the `--dry` or `--dry-run` flag to disable sending an actrual API request
-- Pass the `--cls` or `--clear` flag to archive the recent message history
-- Pass the `--cass-dir` flag to open the config directory in file explorer
+Prompts may or may not be wrapped in quotation marks. If the prompt contains special characters, quotation marks must be used to avoid the terminal interpreting them as instructions.
+
+Flags:
+
+- `--update`: install the latest version of the NPM package
+- `--verbose` or `-v`: enable verbose output
+- `--dry` or `--dry-run`: disable sending an actrual API request
+- `--cls` or `--clear`: archive the recent message history
+- `--cass-dir`: open the config directory in file explorer
 
 ## Development
 
@@ -48,3 +52,10 @@ Run `cass --help` for more instructions and options.
 2. Link with `npm link`
 3. Watch source files and rebuild with `npm run dev`
 4. Run the updated CLI with `cass <prompt>`
+
+Or without linking:
+
+1. Clone the repo
+2. Watch source files and rebuild with `npm run dev`
+3. Run the updated CLI with `npm start -- <prompt>` (note the spaces)
+    - Example: `npm start -- tell me a joke -v`
