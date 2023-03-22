@@ -13,7 +13,7 @@ import { Utils } from "../core/utils";
 dotenv.config();
 
 const argsParser = yargs(hideBin(process.argv))
-  .usage(`USAGE:\nSimply type a question or instruction. Wrap in quotes if the prompt contains special characters. Example:\n$ cass tell me a joke about programming`)
+  .usage(`USAGE:\nSimply type a question or instruction. Wrap the input in quotes if the prompt contains special characters. Example:\n$ cass tell me a joke about programming\n\nTo insert text from the clipboard, use one of the placeholders. Example:\n$ cass "what's wrong with this function: <clipboard>"`)
   .boolean("verbose")
   .alias("v", "verbose")
   .describe("verbose", "Show verbose information for debugging")
