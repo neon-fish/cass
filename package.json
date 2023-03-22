@@ -28,5 +28,9 @@
     "@types/yargs": "^17.0.23",
     "rimraf": "^4.4.0",
     "typescript": "^5.0.2"
-  }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ]
 }
