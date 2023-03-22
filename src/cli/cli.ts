@@ -38,7 +38,7 @@ async function cli() {
 
   const argv = await argsParser.argv;
 
-  const prompt = argv._.map(p => p.toString().trim()).join(" ");
+  let prompt = argv._.map(p => p.toString().trim()).join(" ");
   const verboseF = Boolean(argv.verbose);
   const modelsF = Utils.argIsTrue(argv["model"] || argv["models"] || argv["m"]);
   const cassDirF = Boolean(argv.cassDir);
@@ -46,6 +46,8 @@ async function cli() {
   const clearF = Boolean(argv.clear);
   const apiKey = argv.apiKey?.toString() ? argv.apiKey.toString() : undefined;
   const updateF = Boolean(argv.update);
+
+  prompt = Utils.insertClipboardText(prompt);
 
   if (verboseF) {
     Utils.logVerboseLines(

@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import { exec } from 'child_process';
+import clipboard from "clipboardy";
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "fs";
 import inquirer from "inquirer";
 import { ChatCompletionRequestMessage } from "openai";
@@ -9,6 +10,8 @@ import { join } from "path";
 const HISTORY_FILENAME = "history.json";
 const API_KEY_FILENAME = "openai-api-key";
 const API_KEY_PROCESS_KEY = "OPENAI_API_KEY";
+
+export const CLIPBOARD_TOKENS = ["<clipboard>", "[clipboard]", "{clipboard}"];
 
 export class Utils {
 
@@ -23,6 +26,28 @@ export class Utils {
       return arg;
     }
     return false;
+  }
+
+  /**
+   * Replaces any clipboard tokens with whatever's currently in the clipboard
+   * @param prompt 
+   * @returns 
+   */
+  static insertClipboardText(prompt: string): string {
+    
+    const tokens = CLIPBOARD_TOKENS.filter(ct => prompt.includes(ct));
+    if (tokens.length > 0) {
+      try {
+        const clipboardValue = clipboard.readSync() ?? "";
+        for (const token of tokens) {
+          prompt = prompt.replace(new RegExp(token, "g"), clipboardValue);
+        }
+      } catch (error) {
+        console.log(chalk.gray("(could not read value from clipboard)"));
+      }
+    }
+
+    return prompt;
   }
 
   static async wait(ms = 1000) {
