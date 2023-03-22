@@ -61,3 +61,8 @@ Or without linking:
 2. Watch source files and rebuild with `npm run dev`
 3. Run the updated CLI with `npm start -- <prompt>` (note the spaces)
     - Example: `npm start -- tell me a joke -v`
+
+## TODO
+
+- streaming responses
+- cancelling requests
