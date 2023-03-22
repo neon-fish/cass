@@ -22,12 +22,21 @@ export async function respondToChat(message: string, opts?: {
   const temperature = 0.5;
   const maxTokens = 2048;
 
+  const totalTokens = 4096;
+  const systemTokens = SYSTEM_MESSAGE.length / 3; // over estimate
+  const messageTokens = message.length / 3; // over estimate
+  const historyTokens = totalTokens - (maxTokens + systemTokens + messageTokens);
+  const historyCharacters = historyTokens * 4;
+
+  const history = Utils.getLatestHistory(Utils.readHistory(), historyCharacters);
+
   if (verbose) {
     Utils.logVerboseLines(
       "",
       `API KEY: ${process.env.OPENAI_API_KEY}`,
       `TEMPERATURE: ${temperature}`,
       `MAX TOKENS: ${maxTokens}`,
+      `HISTORY: ${history.length} messages`,
       `SYSTEM: ${SYSTEM_MESSAGE}`,
       "",
     );
@@ -39,6 +48,7 @@ export async function respondToChat(message: string, opts?: {
     max_tokens: maxTokens,
     messages: [
       { role: "system", content: SYSTEM_MESSAGE },
+      ...history,
       { role: "user", content: message },
     ],
   });
@@ -55,7 +65,14 @@ export async function respondToChat(message: string, opts?: {
     );
   }
 
+  const responseMessage = response.data.choices[0].message?.content;
+  if (responseMessage) {
+    Utils.addToHistory([
+      { role: "user", content: message },
+      { role: "assistant", content: responseMessage },
+    ]);
+  }
+
   return response.data;
 
 }
-// doAIShit();
