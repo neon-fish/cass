@@ -3,6 +3,8 @@
 
 A ChatGPT-powered assistant in the console (**C**onsole **Ass**istant)
 
+![npm (scoped)](https://img.shields.io/npm/v/@neonfish/cass)
+
 ## Quickstart
 
 ```
