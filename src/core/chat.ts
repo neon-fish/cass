@@ -1,4 +1,4 @@
-import { Configuration, OpenAIApi } from "openai";
+import { Configuration, CreateChatCompletionResponse, OpenAIApi } from "openai";
 import { inspect } from "util";
 import { Utils } from "./utils";
 
@@ -8,9 +8,14 @@ const CHARS_PER_TOKEN = 4;
 
 export async function respondToChat(message: string, opts?: {
   verbose?: boolean,
-}) {
+  stream?: boolean,
+  dryRun?: boolean,
+}): Promise<CreateChatCompletionResponse | string> {
 
   const verbose = Boolean(opts?.verbose);
+  const stream = Boolean(opts?.stream);
+  const dryRun = Boolean(opts?.dryRun);
+
   if (!message) {
     return "No prompt";
   }
@@ -55,6 +60,7 @@ export async function respondToChat(message: string, opts?: {
     model: "gpt-3.5-turbo",
     temperature: temperature,
     max_tokens: maxResponseTokens,
+    // stream: true, //stream,
     messages: [
       { role: "system", content: SYSTEM_MESSAGE },
       ...latesthistory,
