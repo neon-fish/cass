@@ -10,7 +10,9 @@ export async function respondToChat(message: string, opts?: {
 
   const verbose = Boolean(opts?.verbose);
   if (!message) {
-    throw new Error("No message provided");
+    // throw new Error("No message provided");
+    return "No prompt";
+    // return undefined;
   }
 
   const configuration = new Configuration({

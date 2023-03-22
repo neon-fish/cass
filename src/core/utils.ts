@@ -1,7 +1,8 @@
 import chalk from "chalk";
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
+import { exec } from 'child_process';
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "fs";
 import { ChatCompletionRequestMessage } from "openai";
-import { homedir } from "os";
+import { homedir, platform } from "os";
 import { join } from "path";
 
 export class Utils {
@@ -41,9 +42,14 @@ export class Utils {
     return cassDir;
   }
 
+  static openCassDir(): void {
+    const cmd = platform() === 'win32' ? 'explorer' : 'open';
+    exec(`${cmd} ${this.getCassDir()}`);
+  }
+
   static readHistory(): ChatCompletionRequestMessage[] {
-    const dir = this.getCassDir();
-    const historyFilePath = join(dir, "history.json");
+    const cassDir = this.getCassDir();
+    const historyFilePath = join(cassDir, "history.json");
 
     if (existsSync(historyFilePath)) {
       const historyFileStr = readFileSync(historyFilePath, { encoding: "utf-8" });
@@ -65,14 +71,14 @@ export class Utils {
 
     writeFileSync(historyFilePath, JSON.stringify({
       messages: [...existing, ...messages],
-    }));
+    }, null, 2));
   }
 
   static getLatestHistory(history: ChatCompletionRequestMessage[], characters: number) {
 
     const latest: ChatCompletionRequestMessage[] = [];
 
-    for (let i = history.length -1; i >= 0; i--) {
+    for (let i = history.length - 1; i >= 0; i--) {
       const msgLength = history[i].content.length;
       if (characters >= msgLength) {
         latest.push(history.slice(i, i + 1)[0])
@@ -84,6 +90,21 @@ export class Utils {
 
     latest.reverse();
     return latest;
+  }
+
+  static clearHistory() {
+    const cassDir = this.getCassDir();
+    const historyFilePath = join(cassDir, "history.json");
+
+    if (existsSync(historyFilePath)) {
+      const newFileName = `history-archived-${new Date().toISOString()}`
+        .replace(/:/g, "-")
+        // .split(".")[0]
+      const newFilePath = join(cassDir, `${newFileName}.json`);
+      renameSync(historyFilePath, newFilePath);
+    } else {
+      return [];
+    }
   }
 
 }
