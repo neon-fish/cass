@@ -70,13 +70,13 @@ An example is shown below, including the original prompt, the expanded confirmat
         mins = mins % 60;
         return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
     }
-```
+    ```
 
-The issue with the original code is that it calculates the hours and minutes as ratios of seconds and minutes, respectively, instead of taking the remainder after dividing by 60. This leads to incorrect values for hours and minutes.
+    The issue with the original code is that it calculates the hours and minutes as ratios of seconds and minutes, respectively, instead of taking the remainder after dividing by 60. This leads to incorrect values for hours and minutes.
 
-The corrected code uses the `Math.floor()` function to extract the whole number of hours and minutes, and the modulus operator `%` to get the remainder. It also uses the `padStart()` method to ensure that the hours and minutes are always two digits, with a leading zero if necessary.       
+    The corrected code uses the `Math.floor()` function to extract the whole number of hours and minutes, and the modulus operator `%` to get the remainder. It also uses the `padStart()` method to ensure that the hours and minutes are always two digits, with a leading zero if necessary.       
 
-With these changes, the `millisTo24Hour` function should now correctly convert a time of day in milliseconds to a 24-hour string.
+    With these changes, the `millisTo24Hour` function should now correctly convert a time of day in milliseconds to a 24-hour string.
 ```
 
 ### Flags:
