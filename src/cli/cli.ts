@@ -102,10 +102,11 @@ async function cli() {
   if (dryRunF) {
     resultPromise = Utils.wait(3_000);
   } else {
-
     // resultPromise = completePrompt(prompt, { verbose: verboseF });
-    resultPromise = respondToChat(prompt, { verbose: verboseF });
-
+    resultPromise = respondToChat(prompt, {
+      verbose: verboseF,
+      tokens: tokens,
+    });
   }
 
   const result = await resultPromise.catch(err => {

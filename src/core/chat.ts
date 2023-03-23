@@ -10,11 +10,13 @@ export async function respondToChat(message: string, opts?: {
   verbose?: boolean,
   stream?: boolean,
   dryRun?: boolean,
+  tokens?: number,
 }): Promise<CreateChatCompletionResponse | string> {
 
   const verbose = Boolean(opts?.verbose);
   const stream = Boolean(opts?.stream);
   const dryRun = Boolean(opts?.dryRun);
+  const tokens: number | undefined = opts?.tokens;
 
   if (!message) {
     return "No prompt";
@@ -32,7 +34,7 @@ export async function respondToChat(message: string, opts?: {
   const openai = new OpenAIApi(configuration);
 
   const temperature = 0.5;
-  const maxResponseTokens = 1500;
+  const maxResponseTokens = tokens ?? 1500;
 
   const totalTokens = 4096;
   const systemTokens = (SYSTEM_MESSAGE.length / CHARS_PER_TOKEN) * 1.2; // overestimate

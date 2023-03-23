@@ -117,11 +117,13 @@ An example is shown below, including the original prompt, the expanded confirmat
 
 ### Flags:
 
+- `--tokens` or `-t`: specify the number of tokens to alocate for the response
 - `--update`: install the latest version of the NPM package
 - `--verbose` or `-v`: enable verbose output
 - `--dry` or `--dry-run`: disable sending an actrual API request
 - `--cls` or `--clear`: archive the recent message history
 - `--cass-dir`: open the config directory in file explorer
+- `--api-key`: set the OpenAI API key to use
 
 ## Development
 
