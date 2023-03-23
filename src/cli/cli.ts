@@ -28,6 +28,8 @@ const argsParser = yargs(hideBin(process.argv))
   .describe("clear", "Archive the recent history")
   .alias("key", "api-key")
   .describe("api-key", "Use and store the OpenAI API key")
+  .alias("t", "tokens")
+  .describe("tokens", "Specify the maximum number of tokens to use in the response")
   .boolean("update")
   .describe("update", "Update the globally-installed NPM package")
   .help('h').alias('h', 'help')
@@ -45,6 +47,7 @@ async function cli() {
   const dryRunF = Boolean(argv.dryRun);
   const clearF = Boolean(argv.clear);
   const apiKey = argv.apiKey?.toString() ? argv.apiKey.toString() : undefined;
+  const tokens = argv.tokens?.toString() ? Number(argv.tokens.toString()) : undefined;
   const updateF = Boolean(argv.update);
 
   prompt = Utils.insertClipboardText(prompt);
