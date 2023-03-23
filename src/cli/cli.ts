@@ -60,6 +60,7 @@ async function cli() {
       `ARGV: ${inspect(argv)}`,
       `PROMPT: "${prompt}"`,
       `API KEY: "${apiKey}"`,
+      `TOKENS: "${tokens}"`,
       `🚩 VERBOSE: ${verboseF}`,
       `🚩 MODELS: ${modelsF}`,
       `🚩 CASS DIR: ${cassDirF}`,
