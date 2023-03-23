@@ -17,6 +17,8 @@ Set your OpenAI API key: (Alternatively, add the environment variable `OPENAI_AP
 $ cass --api-key=<your-openai-api-key>
 ```
 
+The API key is saved in the Cass config directory (run `cass --cass-dir` to open).
+
 Then simply enter the prompt in the console:
 
 ```sh
@@ -34,11 +36,37 @@ $ cass give me the first 10 fibonacci numbers
 help you with?
 ```
 
-## Options
+## Usage
 
 Run `cass --help` for more instructions and options.
 
 Prompts may or may not be wrapped in quotation marks. If the prompt contains special characters, quotation marks must be used to avoid the terminal interpreting them as instructions.
+
+### History
+
+The chat history is saved locally in the Cass config directory (run `cass --cass-dir` to open). Each request includes as many recent messages as will fit in the request, taking into account the size of the current propmpt, the maximum number of tokens available for the response, and the size of the recent messages.
+
+This enables back-and-forth while maintaining the chat context. Example:
+
+```
+$ cass write me a haiku about designing circuit boards
+
+> write me a haiku about designing circuit boards
+
+> Silver lines and curves,
+Circuit boards come to life with
+Electricity.
+
+$ cass and one about debugging code
+
+> and one about debugging code
+
+> Lines of code so neat,
+Errors lurk in every byte,
+Debugging complete.
+```
+
+The history can be cleared by running either `cass --clear` or `cass --cls`. The file storing the history is kept but renamed for archival purposes, and the messages will not be sent with the next request.
 
 ### Clipboard
 
@@ -46,12 +74,13 @@ Text can be inserted from the clipboard. This is useful for including long multi
 
 Use one of the following placeholders (they are equivalent): `<clipboard>`, `[clipboard]`, or `{clipboard}`
 
-An example is shown below, including the original prompt, the expanded confirmation of the input prompt including the clipboard contents, and the response:
+An example is shown below, including the original prompt, the expanded confirmation of the input prompt including the clipboard contents, and the response (additional line breaks added for readability):
 
 ```
     $ cass "what's wrong with this function: <clipboard>"
 
-    > What's wrong with this typescript function: /** Convert a time of day in milliseconds to a 24-hour string */
+    > What's wrong with this typescript function: /** Convert a time of day in 
+    milliseconds to a 24-hour string */
     export function millisTo24Hour(millis: number): string {
         let secs = millis / 1000;
         let mins = secs / 60;
@@ -59,7 +88,8 @@ An example is shown below, including the original prompt, the expanded confirmat
         return `${hrs}:${mins}`;
     }
 
-    > The `millisTo24Hour` function in TypeScript has a mistake in the calculation of the hours and minutes. Here's the corrected code:
+    > The `millisTo24Hour` function in TypeScript has a mistake in the calculation 
+    of the hours and minutes. Here's the corrected code:
 
     ```typescript
     /** Convert a time of day in milliseconds to a 24-hour string */
@@ -72,11 +102,17 @@ An example is shown below, including the original prompt, the expanded confirmat
     }
     ```
 
-    The issue with the original code is that it calculates the hours and minutes as ratios of seconds and minutes, respectively, instead of taking the remainder after dividing by 60. This leads to incorrect values for hours and minutes.
+    The issue with the original code is that it calculates the hours and minutes
+    as ratios of seconds and minutes, respectively, instead of taking the remainder
+    after dividing by 60. This leads to incorrect values for hours and minutes.
 
-    The corrected code uses the `Math.floor()` function to extract the whole number of hours and minutes, and the modulus operator `%` to get the remainder. It also uses the `padStart()` method to ensure that the hours and minutes are always two digits, with a leading zero if necessary.       
+    The corrected code uses the `Math.floor()` function to extract the whole number
+    of hours and minutes, and the modulus operator `%` to get the remainder. It also
+    uses the `padStart()` method to ensure that the hours and minutes are always two
+    digits, with a leading zero if necessary.       
 
-    With these changes, the `millisTo24Hour` function should now correctly convert a time of day in milliseconds to a 24-hour string.
+    With these changes, the `millisTo24Hour` function should now correctly convert
+    a time of day in milliseconds to a 24-hour string.
 ```
 
 ### Flags:
