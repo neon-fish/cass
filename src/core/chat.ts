@@ -34,7 +34,6 @@ export async function respondToChat(message: string, opts?: {
 
   const openai = new OpenAIApi(configuration);
 
-  Settings.load();
   const model = Settings.settings.model;
   const temperature = Settings.settings.temperature;
   const maxResponseTokens = tokens ?? Settings.settings.responseTokensMax;
