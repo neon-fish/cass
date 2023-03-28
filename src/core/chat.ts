@@ -1,8 +1,9 @@
 import { Configuration, CreateChatCompletionResponse, OpenAIApi } from "openai";
 import { inspect } from "util";
+import { Settings } from "./settings";
 import { Utils } from "./utils";
 
-const SYSTEM_MESSAGE = `You are a virtual assistant called Cass. You are friendly and helpful. You can generate code and terminal commands, answer questions, generate text, and help the user with their work.`;
+const SYSTEM_MESSAGE = `You are a virtual assistant called Cass. You are very friendly and helpful. You can generate code and terminal commands, answer general questions, generate text, and help the user with their work.`;
 /** Estimate */
 const CHARS_PER_TOKEN = 4;
 
@@ -33,14 +34,17 @@ export async function respondToChat(message: string, opts?: {
 
   const openai = new OpenAIApi(configuration);
 
-  const temperature = 0.5;
-  const maxResponseTokens = tokens ?? 1500;
+  Settings.load();
+  const model = Settings.settings.model;
+  const temperature = Settings.settings.temperature;
+  const maxResponseTokens = tokens ?? Settings.settings.responseTokensMax;
 
-  const totalTokens = 4096;
+  const totalTokens = Settings.settings.totalTokens;
   const systemTokens = (SYSTEM_MESSAGE.length / CHARS_PER_TOKEN) * 1.2; // overestimate
   const messageTokens = (message.length / CHARS_PER_TOKEN) * 1.2; // overestimate
   const historyTokensAvailable = totalTokens - (maxResponseTokens + systemTokens + messageTokens);
-  const historyCharacters = (historyTokensAvailable * CHARS_PER_TOKEN) * 0.8; // underestimate
+  const historyTokens = Math.min(historyTokensAvailable, Settings.settings.historyTokensMax);
+  const historyCharacters = (historyTokens * CHARS_PER_TOKEN) * 0.8; // underestimate
 
   const allHistory = Utils.readHistory();
   const latesthistory = Utils.getLatestHistory(allHistory, historyCharacters);
@@ -49,6 +53,7 @@ export async function respondToChat(message: string, opts?: {
     Utils.logVerboseLines(
       "",
       `API KEY: ${apiKey}`,
+      `MODEL: ${model}`,
       `TEMPERATURE: ${temperature}`,
       `MAX TOKENS: ${maxResponseTokens}`,
       `SYSTEM: ${SYSTEM_MESSAGE}`,
@@ -59,7 +64,7 @@ export async function respondToChat(message: string, opts?: {
   }
 
   const response = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
+    model: model,
     temperature: temperature,
     max_tokens: maxResponseTokens,
     // stream: true, //stream,
