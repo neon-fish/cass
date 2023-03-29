@@ -14,28 +14,40 @@ dotenv.config();
 
 const argsParser = yargs(hideBin(process.argv))
   .usage(`USAGE:\nSimply type a question or instruction. Wrap the input in quotes if the prompt contains special characters. Example:\n$ cass tell me a joke about programming\n\nTo insert text from the clipboard, use one of the placeholders. Example:\n$ cass "what's wrong with this function: <clipboard>"`)
-  .boolean("verbose")
-  .alias("v", "verbose")
-  .describe("verbose", "Show verbose information for debugging")
-  .boolean("cassdir")
-  .alias("cassdir", "cass-dir")
-  .describe("cassdir", "Open the Cass config dir in file explorer")
-  .boolean("dry")
-  .alias("dry", "dry-run")
-  .describe("dry", "Do not send a request to the API")
-  .boolean("clear")
-  .alias("cls", "clear")
-  .describe("clear", "Archive the recent history")
-  .alias("key", "api-key")
-  .describe("api-key", "Use and store the OpenAI API key")
-  .alias("t", "tokens")
-  .describe("tokens", "Specify the maximum number of tokens to use in the response")
-  .boolean("update")
-  .alias("up", "update")
-  .describe("update", "Update the globally-installed NPM package")
-  .boolean("upgrade")
-  .describe("upgrade", "Alias for 'update'")
   .help('h').alias('h', 'help')
+  .option("verbose", {
+    boolean: true,
+    alias: "v",
+    describe: "Show verbose information for debugging",
+  })
+  .option("dir", {
+    boolean: true,
+    alias: "cass-dir",
+    describe: "Open the Cass config dir in file explorer",
+  })
+  .option("dry", {
+    boolean: true,
+    alias: "dry-run",
+    describe: "Do not send a request to the API",
+  })
+  .option("clear", {
+    boolean: true,
+    alias: "cls",
+    describe: "Archive the recent history",
+  })
+  .option("api-key", {
+    alias: "key",
+    describe: "Use and store the given OpenAI API key",
+  })
+  .option("tokens", {
+    alias: "t",
+    describe: "Specify the maximum number of tokens to use in the response",
+  })
+  .option("up", {
+    boolean: true,
+    alias: ["update", "upgrade"],
+    describe: "Update the globally-installed NPM package",
+  })
   .epilog('(https://github.com/neon-fish/cass)')
   ;
 
