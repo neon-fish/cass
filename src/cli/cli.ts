@@ -2,12 +2,13 @@
 
 import chalk from "chalk";
 import * as dotenv from "dotenv";
-import { CreateChatCompletionResponse } from "openai";
+import { CreateChatCompletionResponse, ImagesResponse } from "openai";
 import ora from "ora";
 import { inspect } from "util";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { respondToChat } from "../core/chat";
+import { generateImage } from "../core/image";
 import { Utils } from "../core/utils";
 
 dotenv.config();
@@ -15,6 +16,15 @@ dotenv.config();
 const argsParser = yargs(hideBin(process.argv))
   .usage(`USAGE:\nSimply type a question or instruction. Wrap the input in quotes if the prompt contains special characters. Example:\n$ cass tell me a joke about programming\n\nTo insert text from the clipboard, use one of the placeholders. Example:\n$ cass "what's wrong with this function: <clipboard>"`)
   .help('h').alias('h', 'help')
+  .option("image", {
+    boolean: true,
+    alias: ["img", "i"],
+    describe: "Use the prompt to generate an image instead of a chat message",
+  })
+  .option("count", {
+    alias: ["n"],
+    describe: "Specify how many images to generate",
+  })
   .option("verbose", {
     boolean: true,
     alias: "v",
@@ -49,10 +59,12 @@ const argsParser = yargs(hideBin(process.argv))
     describe: "Update the globally-installed NPM package",
   })
   .option("gpt3", {
+    boolean: true,
     alias: "3",
     describe: "Force the use of GPT 3.5 Turbo for this prompt",
   })
   .option("gpt4", {
+    boolean: true,
     alias: "4",
     describe: "Force the use of GPT 4 for this prompt",
   })
@@ -74,6 +86,8 @@ async function cli() {
   const updateF = Boolean(argv.update);
   const use3F = Boolean(argv.gpt3);
   const use4F = Boolean(argv.gpt4);
+  const imageF = Boolean(argv.image);
+  const imageCount = argv.count?.toString() ? Number(argv.count.toString()) : undefined;
 
   prompt = Utils.insertClipboardText(prompt);
 
@@ -86,6 +100,8 @@ async function cli() {
       `PROMPT: "${prompt}"`,
       `API KEY: "${apiKey}"`,
       `TOKENS: "${tokens}"`,
+      `IMAGES: "${imageCount}"`,
+      `🚩 IMAGE: ${imageF}`,
       `🚩 VERBOSE: ${verboseF}`,
       `🚩 MODELS: ${modelsF}`,
       `🚩 CASS DIR: ${cassDirF}`,
@@ -125,17 +141,25 @@ async function cli() {
     color: "green",
   }).start();
 
-  let resultPromise: Promise<CreateChatCompletionResponse | string | undefined | void>;
+  let resultPromise: Promise<CreateChatCompletionResponse | ImagesResponse | string | undefined | void>;
+
   if (dryRunF) {
-    resultPromise = Utils.wait(3_000);
+    resultPromise = Utils.wait(2_000);
   } else {
-    // resultPromise = completePrompt(prompt, { verbose: verboseF });
-    resultPromise = respondToChat(prompt, {
-      verbose: verboseF,
-      tokens: tokens,
-      useGpt3: use3F,
-      useGpt4: use4F,
-    });
+    if (imageF) {
+      resultPromise = generateImage(prompt, {
+        verbose: verboseF,
+        n: imageCount,
+      });
+    } else {
+      // resultPromise = completePrompt(prompt, { verbose: verboseF });
+      resultPromise = respondToChat(prompt, {
+        verbose: verboseF,
+        tokens: tokens,
+        useGpt3: use3F,
+        useGpt4: use4F,
+      });
+    }
   }
 
   const result = await resultPromise.catch(err => {
@@ -151,9 +175,14 @@ async function cli() {
     if (typeof result === "string") {
       resultText = result;
     } else {
-      const { choices, created, id, model, object, usage } = result;
-      // const resultText = choices[0].text?.trim();
-      resultText = choices[0].message?.content.trim() ?? resultText;
+      if ("choices" in result) {
+        const { choices, created, id, model, object, usage } = result;
+        // const resultText = choices[0].text?.trim();
+        resultText = choices[0].message?.content.trim() ?? resultText;
+      } else {
+        const s = result.data.length === 1 ? "" : "s";
+        resultText = `Saved ${result.data.length} new image${s} to Cass directory (\`cass --dir\`)`;
+      }
     }
 
     console.log(chalk.greenBright(`> ${resultText}`));

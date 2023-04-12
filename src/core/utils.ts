@@ -73,6 +73,15 @@ export class Utils {
     return cassDir;
   }
 
+  /** Get the Cass images dir path, and ensure the dir exists */
+  static getCassImagesDir() {
+    const imagesDir = join(this.getCassDir(), "images");
+    if (!existsSync(imagesDir)) {
+      mkdirSync(imagesDir);
+    }
+    return imagesDir;
+  }
+
   static openCassDir(): void {
     const cmd = platform() === 'win32' ? 'explorer' : 'open';
     exec(`${cmd} ${this.getCassDir()}`);
