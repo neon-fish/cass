@@ -12,6 +12,8 @@ export async function respondToChat(message: string, opts?: {
   stream?: boolean,
   dryRun?: boolean,
   tokens?: number,
+  useGpt3?: boolean,
+  useGpt4?: boolean,
 }): Promise<CreateChatCompletionResponse | string> {
 
   const verbose = Boolean(opts?.verbose);
@@ -34,7 +36,10 @@ export async function respondToChat(message: string, opts?: {
 
   const openai = new OpenAIApi(configuration);
 
-  const model = Settings.settings.model;
+  const model: "gpt-3.5-turbo" | "gpt-4" = opts?.useGpt4 === true ? "gpt-4" :
+    opts?.useGpt3 === true ? "gpt-3.5-turbo" :
+      Settings.settings.model;
+
   const temperature = Settings.settings.temperature;
   const maxResponseTokens = tokens ?? Settings.settings.responseTokensMax;
 

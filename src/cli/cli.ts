@@ -48,6 +48,14 @@ const argsParser = yargs(hideBin(process.argv))
     alias: ["update", "upgrade"],
     describe: "Update the globally-installed NPM package",
   })
+  .option("gpt3", {
+    alias: "3",
+    describe: "Force the use of GPT 3.5 Turbo for this prompt",
+  })
+  .option("gpt4", {
+    alias: "4",
+    describe: "Force the use of GPT 4 for this prompt",
+  })
   .epilog('(https://github.com/neon-fish/cass)')
   ;
 
@@ -64,6 +72,8 @@ async function cli() {
   const apiKey = argv.apiKey?.toString() ? argv.apiKey.toString() : undefined;
   const tokens = argv.tokens?.toString() ? Number(argv.tokens.toString()) : undefined;
   const updateF = Boolean(argv.update);
+  const use3F = Boolean(argv.gpt3);
+  const use4F = Boolean(argv.gpt4);
 
   prompt = Utils.insertClipboardText(prompt);
 
@@ -82,6 +92,8 @@ async function cli() {
       `🚩 DRY RUN: ${dryRunF}`,
       `🚩 CLEAR: ${clearF}`,
       `🚩 UPDATE: ${updateF}`,
+      `🚩 GPT 3: ${use3F}`,
+      `🚩 GPT 4: ${use4F}`,
     );
   }
 
@@ -121,6 +133,8 @@ async function cli() {
     resultPromise = respondToChat(prompt, {
       verbose: verboseF,
       tokens: tokens,
+      useGpt3: use3F,
+      useGpt4: use4F,
     });
   }
 

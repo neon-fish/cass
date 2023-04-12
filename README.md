@@ -124,6 +124,8 @@ An example is shown below, including the original prompt, the expanded confirmat
 - `--cls` or `--clear`: archive the recent message history
 - `--cass-dir`: open the config directory in file explorer
 - `--api-key`: set the OpenAI API key to use
+- `--gpt3` or `--3`: force the use of GPT 3.5 Turbo (note two dashes for alias)
+- `--gpt4` or `--4`: force the use of GPT 4 (note two dashes for alias)
 
 ## Development
 
