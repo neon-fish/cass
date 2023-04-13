@@ -11,8 +11,6 @@ const HISTORY_FILENAME = "history.json";
 const API_KEY_FILENAME = "openai-api-key";
 const API_KEY_PROCESS_KEY = "OPENAI_API_KEY";
 
-export const CLIPBOARD_TOKENS = ["<clipboard>", "[clipboard]", "{clipboard}"];
-
 export class Utils {
 
   static argIsTrue(arg: any): boolean {
@@ -34,19 +32,24 @@ export class Utils {
    * @returns 
    */
   static insertClipboardText(prompt: string): string {
-    
-    const tokens = CLIPBOARD_TOKENS.filter(ct => prompt.includes(ct));
-    if (tokens.length > 0) {
-      try {
-        const clipboardValue = clipboard.readSync() ?? "";
-        for (const token of tokens) {
-          prompt = prompt.replace(new RegExp(token, "g"), clipboardValue);
-        }
-      } catch (error) {
-        console.log(chalk.gray("(could not read value from clipboard)"));
-      }
+
+    // console.log("prompt:", prompt);
+
+    const promptHasToken = ["<clipboard>", "[clipboard]", "{clipboard}"].some(ct => prompt.includes(ct));
+    if (!promptHasToken) {
+      // console.log("no tokens, returning");
+      return prompt;
     }
 
+    try {
+      const clipboardValue = clipboard.readSync() ?? "";
+      const regex = /(\<clipboard\>)|(\[clipboard\])|(\{clipboard\})/g;
+      prompt = prompt.replace(regex, clipboardValue);
+    } catch (error) {
+      console.log(chalk.gray("(could not read value from clipboard)"));
+    }
+
+    // console.log("prompt after clipboard tokens:", prompt);
     return prompt;
   }
 
