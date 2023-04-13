@@ -159,5 +159,11 @@ Or without linking:
 
 # TODO
 
-- streaming responses
+- current time in system prompt
+- user name
+- reflect instruction
+- planning
+- simple web queries
+- ~~streaming responses~~
+  - multi-stage interactions would be janky while streaming responses
 - cancelling requests
