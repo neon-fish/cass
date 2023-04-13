@@ -71,63 +71,81 @@ const argsParser = yargs(hideBin(process.argv))
   .epilog('(https://github.com/neon-fish/cass)')
   ;
 
+interface CliConfig {
+  verbose: boolean,
+  // models: boolean,
+  cassDir: boolean,
+  dryRun: boolean,
+  clear: boolean,
+  apiKey: string | undefined,
+  tokens: number | undefined,
+  update: boolean,
+  gpt3: boolean,
+  gpt4: boolean,
+  image: boolean,
+  imageCount: number | undefined,
+}
+
 async function cli() {
 
   const argv = await argsParser.argv;
 
   let prompt = argv._.map(p => p.toString().trim()).join(" ");
-  const verboseF = Boolean(argv.verbose);
-  const modelsF = Utils.argIsTrue(argv["model"] || argv["models"] || argv["m"]);
-  const cassDirF = Boolean(argv.cassDir);
-  const dryRunF = Boolean(argv.dryRun);
-  const clearF = Boolean(argv.clear);
-  const apiKey = argv.apiKey?.toString() ? argv.apiKey.toString() : undefined;
-  const tokens = argv.tokens?.toString() ? Number(argv.tokens.toString()) : undefined;
-  const updateF = Boolean(argv.update);
-  const use3F = Boolean(argv.gpt3);
-  const use4F = Boolean(argv.gpt4);
-  const imageF = Boolean(argv.image);
-  const imageCount = argv.count?.toString() ? Number(argv.count.toString()) : undefined;
+
+  const cliConfig: CliConfig = {
+    verbose: Boolean(argv.verbose),
+    // models: Utils.argIsTrue(argv["model"] || argv["models"] || argv["m"]),
+    cassDir: Boolean(argv.cassDir),
+    dryRun: Boolean(argv.dryRun),
+    clear: Boolean(argv.clear),
+    apiKey: argv.apiKey?.toString() ? argv.apiKey.toString() : undefined,
+    tokens: argv.tokens?.toString() ? Number(argv.tokens.toString()) : undefined,
+    update: Boolean(argv.update),
+    gpt3: Boolean(argv.gpt3),
+    gpt4: Boolean(argv.gpt4),
+    image: Boolean(argv.image),
+    imageCount: argv.count?.toString() ? Number(argv.count.toString()) : undefined,
+  };
 
   prompt = Utils.insertClipboardText(prompt);
 
-  if (verboseF) {
+  if (cliConfig.verbose) {
     Utils.logVerboseLines(
       "",
       "CASS:",
       "",
       `ARGV: ${inspect(argv)}`,
       `PROMPT: "${prompt}"`,
-      `API KEY: "${apiKey}"`,
-      `TOKENS: "${tokens}"`,
-      `IMAGES: "${imageCount}"`,
-      `🚩 IMAGE: ${imageF}`,
-      `🚩 VERBOSE: ${verboseF}`,
-      `🚩 MODELS: ${modelsF}`,
-      `🚩 CASS DIR: ${cassDirF}`,
-      `🚩 DRY RUN: ${dryRunF}`,
-      `🚩 CLEAR: ${clearF}`,
-      `🚩 UPDATE: ${updateF}`,
-      `🚩 GPT 3: ${use3F}`,
-      `🚩 GPT 4: ${use4F}`,
+      `API KEY: "${cliConfig.apiKey}"`,
+      `TOKENS: "${cliConfig.tokens}"`,
+      `IMAGES: "${cliConfig.imageCount}"`,
+      `🚩 IMAGE: ${cliConfig.image}`,
+      `🚩 VERBOSE: ${cliConfig.verbose}`,
+      // `🚩 MODELS: ${cliConfig.models}`,
+      `🚩 CASS DIR: ${cliConfig.cassDir}`,
+      `🚩 DRY RUN: ${cliConfig.dryRun}`,
+      `🚩 CLEAR: ${cliConfig.clear}`,
+      `🚩 UPDATE: ${cliConfig.update}`,
+      `🚩 GPT 3: ${cliConfig.gpt3}`,
+      `🚩 GPT 4: ${cliConfig.gpt4}`,
     );
   }
 
-  if (updateF) {
+  if (cliConfig.update) {
     const updated = await Utils.update();
     // console.log(chalk.gray("(opening Cass dir)"));
     if (updated) return;
   }
-  if (cassDirF) {
+  if (cliConfig.cassDir) {
     Utils.openCassDir();
     console.log(chalk.gray("(opening Cass dir)"));
   }
-  if (clearF) {
+  if (cliConfig.clear) {
     Utils.clearHistory();
     console.log(chalk.gray("(cleared history)"));
   }
-  if (apiKey) {
-    Utils.storeApiKey(apiKey);
+  if (cliConfig.apiKey) {
+    Utils.storeApiKey(cliConfig.apiKey);
     console.log(chalk.gray("(stored API key)"));
   }
 
@@ -135,64 +153,15 @@ async function cli() {
   console.log(chalk.cyanBright(`> ${prompt}`));
   console.log("");
 
-  const spinnerText = dryRunF ? "thinking (dry run)..." : "thinking...";
-  const spinner = ora({
-    text: chalk.greenBright(spinnerText),
-    color: "green",
-  }).start();
-
-  let resultPromise: Promise<CreateChatCompletionResponse | ImagesResponse | string | undefined | void>;
-
-  if (dryRunF) {
-    resultPromise = Utils.wait(2_000);
+  if (cliConfig.dryRun) {
+    await doDryRun(prompt, cliConfig);
+  } else if (cliConfig.image) {
+    await doImage(prompt, cliConfig);
   } else {
-    if (imageF) {
-      resultPromise = generateImage(prompt, {
-        verbose: verboseF,
-        n: imageCount,
-      });
-    } else {
-      // resultPromise = completePrompt(prompt, { verbose: verboseF });
-      resultPromise = respondToChat(prompt, {
-        verbose: verboseF,
-        tokens: tokens,
-        useGpt3: use3F,
-        useGpt4: use4F,
-      });
-    }
+    await doChat(prompt, cliConfig);
   }
 
-  const result = await resultPromise.catch(err => {
-    spinner.stop();
-    console.log(chalk.redBright(`> Error generating response:`, err));
-    return undefined
-  });
-  spinner.stop();
-
-  if (result) {
-    let resultText = "";
-
-    if (typeof result === "string") {
-      resultText = result;
-    } else {
-      if ("choices" in result) {
-        const { choices, created, id, model, object, usage } = result;
-        // const resultText = choices[0].text?.trim();
-        resultText = choices[0].message?.content.trim() ?? resultText;
-      } else {
-        const s = result.data.length === 1 ? "" : "s";
-        resultText = `Saved ${result.data.length} new image${s} to Cass directory (\`cass --dir\`)`;
-      }
-    }
-
-    console.log(chalk.greenBright(`> ${resultText}`));
-  }
-
-  if (dryRunF) {
-    console.log(chalk.greenBright(`> [dry run complete]`));
-  }
-
-  if (verboseF) {
+  if (cliConfig.verbose) {
     Utils.logVerboseLines(
       "",
       "/CASS",
@@ -203,3 +172,85 @@ async function cli() {
 }
 
 cli();
+
+async function doDryRun(prompt: string, opts: CliConfig) {
+
+  const spinner = ora({
+    text: chalk.greenBright("thinking (dry run)..."),
+    color: "green",
+  }).start();
+
+  await Utils.wait(2_000);
+
+  spinner.stop();
+  console.log(chalk.greenBright(`> [dry run complete]`));
+
+}
+
+async function doChat(prompt: string, config: CliConfig) {
+
+  const spinner = ora({
+    text: chalk.greenBright("thinking..."),
+    color: "green",
+  }).start();
+
+  const resultPromise: Promise<string | CreateChatCompletionResponse> = respondToChat(prompt, {
+    verbose: config.verbose,
+    tokens: config.tokens,
+    useGpt3: config.gpt3,
+    useGpt4: config.gpt4,
+  });
+
+  const result = await resultPromise.catch(err => {
+    spinner.stop();
+    console.log(chalk.redBright(`> Error generating response:`, err));
+    return undefined;
+  });
+  spinner.stop();
+
+  if (!result) return;
+
+  let resultText = "";
+  if (typeof result === "string") {
+    resultText = result;
+  } else {
+    const { choices, created, id, model, object, usage } = result;
+    // const resultText = choices[0].text?.trim();
+    resultText = choices[0].message?.content.trim() ?? resultText;
+  }
+  console.log(chalk.greenBright(`> ${resultText}`));
+
+}
+
+async function doImage(prompt: string, config: CliConfig) {
+
+  const spinnerText = "thinking...";
+  const spinner = ora({
+    text: chalk.greenBright(spinnerText),
+    color: "green",
+  }).start();
+
+  const resultPromise: Promise<string | ImagesResponse> = generateImage(prompt, {
+    verbose: config.verbose,
+    n: config.imageCount,
+  });
+
+  const result = await resultPromise.catch(err => {
+    spinner.stop();
+    console.log(chalk.redBright(`> Error generating image(s):`, err));
+    return undefined;
+  });
+  spinner.stop();
+
+  if (!result) return;
+
+  let resultText = "";
+  if (typeof result === "string") {
+    resultText = result;
+  } else {
+    const s = result.data.length === 1 ? "" : "s";
+    resultText = `Saved ${result.data.length} new image${s} to Cass directory (\`cass --dir\`)`;
+  }
+  console.log(chalk.greenBright(`> ${resultText}`));
+
+}
