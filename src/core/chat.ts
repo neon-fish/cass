@@ -6,42 +6,43 @@ import { Utils } from "./utils";
 const DEFAULT_SYSTEM_MESSAGE = `
 You are a virtual assistant called Cass. You are very friendly and helpful.
 You can generate code and terminal commands, answer general questions, generate text, and help the user with their work.
-`
-// +`
-// If the user asks for something that you don't know, ore requires current information to answer correctly,
-// or if a query relates to events or developments that may have happened after September 2021,
-// then respond with a "search response".
-// A "search response" begins with "SEARCH" in uppercase, then the rest of the response is a query that will
-// be passed to a search engine. The result of the search will be sent as the next User message, which should
-// then be used to complete the user's query or instruction.
-// `
-;
-// Example:
+
+If the user asks for something that you don't know, ore requires current information to answer correctly,
+or if a query relates to events or developments that may have happened after September 2021,
+then respond with a "search response".
+A "search response" begins with "SEARCH" in uppercase, then the rest of the response is a query that will
+be passed to a search engine. The query should not be wrapped in quotation marks unless if that exact string should be searched for.
+The result of the search will be sent as the next User message as JSON, which may then be used to
+complete the user's query or instruction, if the results are relevant.
+`; // Example:
 
 /** Estimate */
 const CHARS_PER_TOKEN = 4;
 
-export async function respondToChat(message: string, opts?: {
+/**
+ * 
+ * @param prompt 
+ * @param opts 
+ * @returns 
+ * @throws Error on error
+ */
+export async function respondToChat(prompt: string, opts?: {
   verbose?: boolean,
   stream?: boolean,
   dryRun?: boolean,
   tokens?: number,
   useGpt3?: boolean,
   useGpt4?: boolean,
-}): Promise<CreateChatCompletionResponse | string> {
+}): Promise<CreateChatCompletionResponse> {
 
   const verbose = Boolean(opts?.verbose);
   const stream = Boolean(opts?.stream);
   const dryRun = Boolean(opts?.dryRun);
   const tokens: number | undefined = opts?.tokens;
 
-  if (!message) {
-    return "No prompt";
-  }
-
   const apiKey = Utils.apiKey();
   if (!apiKey) {
-    return `No API key!\nSee: https://platform.openai.com/docs/api-reference/authentication \nThen set the key using:\n$ cass --api-key=<your-new-api-key>`;
+    throw new Error(`No API key!\nSee: https://platform.openai.com/docs/api-reference/authentication \nThen set the key using:\n$ cass --api-key=<your-new-api-key>`);
   }
 
   const configuration = new Configuration({
@@ -68,8 +69,8 @@ export async function respondToChat(message: string, opts?: {
 
   const totalTokens = Settings.settings.totalTokens;
   const systemTokens = (systemMessage.length / CHARS_PER_TOKEN) * 1.2; // overestimate
-  const messageTokens = (message.length / CHARS_PER_TOKEN) * 1.2; // overestimate
-  const historyTokensAvailable = totalTokens - (maxResponseTokens + systemTokens + messageTokens);
+  const promptTokens = (prompt.length / CHARS_PER_TOKEN) * 1.2; // overestimate
+  const historyTokensAvailable = totalTokens - (maxResponseTokens + systemTokens + promptTokens);
   const historyTokens = Math.min(historyTokensAvailable, Settings.settings.historyTokensMax);
   const historyCharacters = (historyTokens * CHARS_PER_TOKEN) * 0.8; // underestimate
 
@@ -98,7 +99,7 @@ export async function respondToChat(message: string, opts?: {
     messages: [
       { role: "system", content: systemMessage },
       ...latesthistory,
-      { role: "user", content: message },
+      { role: "user", content: prompt },
     ],
   });
 
@@ -117,7 +118,7 @@ export async function respondToChat(message: string, opts?: {
   const responseMessage = response.data.choices[0].message?.content;
   if (responseMessage) {
     Utils.addToHistory([
-      { role: "user", content: message },
+      { role: "user", content: prompt },
       { role: "assistant", content: responseMessage },
     ]);
   }

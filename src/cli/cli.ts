@@ -153,8 +153,8 @@ async function cli() {
     Utils.storeApiKey(cliConfig.apiKey);
     console.log(chalk.gray("(stored API key)"));
   }
-
   console.log("");
+
   console.log(chalk.cyanBright(`> ${prompt}`));
   console.log("");
 
@@ -194,36 +194,63 @@ async function doDryRun(prompt: string, opts: CliConfig) {
 
 async function doChat(prompt: string, config: CliConfig) {
 
-  const spinner = ora({
-    text: chalk.greenBright("thinking..."),
-    color: "green",
-  }).start();
-
-  const resultPromise: Promise<string | CreateChatCompletionResponse> = respondToChat(prompt, {
-    verbose: config.verbose,
-    tokens: config.tokens,
-    useGpt3: config.gpt3,
-    useGpt4: config.gpt4,
-  });
-
-  const result = await resultPromise.catch(err => {
-    spinner.stop();
-    console.log(chalk.redBright(`> Error generating response:`, err));
-    return undefined;
-  });
-  spinner.stop();
-
-  if (!result) return;
-
-  let resultText = "";
-  if (typeof result === "string") {
-    resultText = result;
-  } else {
-    const { choices, created, id, model, object, usage } = result;
-    // const resultText = choices[0].text?.trim();
-    resultText = choices[0].message?.content.trim() ?? resultText;
+  if (!prompt) {
+    return console.log(chalk.greenBright(`> No prompt`));
   }
-  console.log(chalk.greenBright(`> ${resultText}`));
+
+  let pendingAction = true;
+  while (pendingAction) {
+    pendingAction = false;
+
+    const spinner = ora({
+      text: chalk.greenBright("thinking..."),
+      color: "green",
+    }).start();
+
+    const chatResultPromise: Promise<CreateChatCompletionResponse> = respondToChat(prompt, {
+      verbose: config.verbose,
+      tokens: config.tokens,
+      useGpt3: config.gpt3,
+      useGpt4: config.gpt4,
+    });
+
+    const chatResponse = await chatResultPromise.catch(err => {
+      spinner.stop();
+      console.log(chalk.redBright(`> Error generating response:`, err));
+      return undefined;
+    });
+    spinner.stop();
+
+    if (!chatResponse) return;
+
+    const { choices, created, id, model, object, usage } = chatResponse;
+    const chatText = choices[0].message?.content.trim() ?? "";
+
+    console.log(chalk.greenBright(`> ${chatText}`));
+    console.log("");
+
+    // If the result is a tool instruction, use the tool, and return the result
+
+    const searchLine = chatText.split("\n").find(line => line.startsWith("SEARCH"));
+    if (searchLine) {
+      pendingAction = true;
+
+      let query = searchLine.replace("SEARCH", "");
+      if (query.startsWith(":")) {
+        query = query.replace(":", "");
+      }
+      query = query.trim();
+
+      const searchResult = await runWebSearch(query, {
+        resultsCount: 10,
+        verbose: config.verbose,
+      });
+
+      prompt = `Search result: ${JSON.stringify(searchResult)}`;
+    }
+
+    // If a tool has written results to the prompt, the while loop will not exit
+  }
 
 }
 
