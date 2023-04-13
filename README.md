@@ -1,7 +1,9 @@
 
 # Cass
 
-A ChatGPT-powered assistant in the console (**C**onsole **Ass**istant)
+A ChatGPT-powered assistant in the console (**C**onsole **Ass**istant).
+
+Includes chat history, image generation, and rudimentary web search.
 
 ![npm (scoped)](https://img.shields.io/npm/v/@neonfish/cass)
 
@@ -128,6 +130,12 @@ An example is shown below, including the original prompt, the expanded confirmat
     With these changes, the `millisTo24Hour` function should now correctly convert
     a time of day in milliseconds to a 24-hour string.
 ```
+
+## Tools
+
+### Web Search
+
+If information more recent than the September 2021 cut-off is required, Cass can make simple web searches automatically. This capability is not always used, and sometimes does not yield the required information depending on the generated search query.
 
 ## Flags:
 
