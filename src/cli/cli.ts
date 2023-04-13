@@ -10,7 +10,7 @@ import { hideBin } from "yargs/helpers";
 import { respondToChat } from "../core/chat";
 import { generateImage } from "../core/image";
 import { Utils } from "../core/utils";
-import { runWebSearch } from "../core/web-search";
+import { runWebSearch } from "../core/tools/web-search";
 
 dotenv.config();
 

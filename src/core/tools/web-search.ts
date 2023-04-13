@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import { JSDOM } from "jsdom";
 import chalk from "chalk";
 import ora from "ora";
-import { Utils } from "./utils";
+import { Utils } from "../utils";
 
 export interface SearchResult {
   title: string | undefined,
