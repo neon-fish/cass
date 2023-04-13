@@ -11,6 +11,7 @@ import { respondToChat } from "../core/chat";
 import { generateImage } from "../core/image";
 import { Utils } from "../core/utils";
 import { runWebSearch } from "../core/tools/web-search";
+import { openUrl } from "../core/tools/open-url";
 
 dotenv.config();
 
@@ -289,9 +290,11 @@ async function doImage(prompt: string, config: CliConfig) {
 
 async function runTest(prompt: string, cliConfig: CliConfig, argv: any) {
 
-  runWebSearch("jack russels in norfolk", {
-    resultsCount: 10,
-    verbose: true,
-  });
+  openUrl("https%3A%2F%2Fwww.freecodecamp.org%2Fnews%2Fthe%2Dultimate%2Dguide%2Dto%2Dweb%2Dscraping%2Dwith%2Dnode%2Djs%2Ddaa2027dcd3%2F")
+  
+  // runWebSearch("jack russels in norfolk", {
+  //   resultsCount: 10,
+  //   verbose: true,
+  // });
 
 }
