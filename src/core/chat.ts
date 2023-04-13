@@ -3,7 +3,21 @@ import { inspect } from "util";
 import { Settings } from "./settings";
 import { Utils } from "./utils";
 
-const SYSTEM_MESSAGE = `You are a virtual assistant called Cass. You are very friendly and helpful. You can generate code and terminal commands, answer general questions, generate text, and help the user with their work.`;
+const DEFAULT_SYSTEM_MESSAGE = `
+You are a virtual assistant called Cass. You are very friendly and helpful.
+You can generate code and terminal commands, answer general questions, generate text, and help the user with their work.
+`
+// +`
+// If the user asks for something that you don't know, ore requires current information to answer correctly,
+// or if a query relates to events or developments that may have happened after September 2021,
+// then respond with a "search response".
+// A "search response" begins with "SEARCH" in uppercase, then the rest of the response is a query that will
+// be passed to a search engine. The result of the search will be sent as the next User message, which should
+// then be used to complete the user's query or instruction.
+// `
+;
+// Example:
+
 /** Estimate */
 const CHARS_PER_TOKEN = 4;
 
@@ -36,6 +50,15 @@ export async function respondToChat(message: string, opts?: {
 
   const openai = new OpenAIApi(configuration);
 
+  const systemUserName = Settings.settings.userName
+    ? `The user's name is: ${Settings.settings.userName}.`
+    : "";
+  const systemMessage = [
+    DEFAULT_SYSTEM_MESSAGE,
+    systemUserName,
+    `The current time is: ${new Date().toISOString()}.`,
+  ].join("\n\n");
+
   const model: "gpt-3.5-turbo" | "gpt-4" = opts?.useGpt4 === true ? "gpt-4" :
     opts?.useGpt3 === true ? "gpt-3.5-turbo" :
       Settings.settings.model;
@@ -44,7 +67,7 @@ export async function respondToChat(message: string, opts?: {
   const maxResponseTokens = tokens ?? Settings.settings.responseTokensMax;
 
   const totalTokens = Settings.settings.totalTokens;
-  const systemTokens = (SYSTEM_MESSAGE.length / CHARS_PER_TOKEN) * 1.2; // overestimate
+  const systemTokens = (systemMessage.length / CHARS_PER_TOKEN) * 1.2; // overestimate
   const messageTokens = (message.length / CHARS_PER_TOKEN) * 1.2; // overestimate
   const historyTokensAvailable = totalTokens - (maxResponseTokens + systemTokens + messageTokens);
   const historyTokens = Math.min(historyTokensAvailable, Settings.settings.historyTokensMax);
@@ -60,7 +83,7 @@ export async function respondToChat(message: string, opts?: {
       `MODEL: ${model}`,
       `TEMPERATURE: ${temperature}`,
       `MAX TOKENS: ${maxResponseTokens}`,
-      `SYSTEM: ${SYSTEM_MESSAGE}`,
+      `SYSTEM: ${systemMessage}`,
       `TOTAL HISTORY: ${allHistory.length} messages (${allHistory.reduce((prev, curr, index) => prev + curr.content.length, 0)} characters)`,
       `LATEST HISTORY: ${latesthistory.length} messages (${latesthistory.reduce((prev, curr, index) => prev + curr.content.length, 0)} characters)`,
       "",
@@ -73,7 +96,7 @@ export async function respondToChat(message: string, opts?: {
     max_tokens: maxResponseTokens,
     // stream: true, //stream,
     messages: [
-      { role: "system", content: SYSTEM_MESSAGE },
+      { role: "system", content: systemMessage },
       ...latesthistory,
       { role: "user", content: message },
     ],

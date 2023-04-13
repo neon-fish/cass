@@ -20,6 +20,7 @@ interface SettingsValues {
   responseTokensMax: number,
   /** The maximum number to allocate to the history */
   historyTokensMax: number,
+  userName: string | undefined,
 }
 
 const DEFAULT_SETTINGS: SettingsValues = {
@@ -28,6 +29,7 @@ const DEFAULT_SETTINGS: SettingsValues = {
   totalTokens: 4096,
   responseTokensMax: 1500,
   historyTokensMax: 2000,
+  userName: undefined,
 };
 
 export class Settings {
@@ -46,6 +48,7 @@ export class Settings {
       if (loadedSettings.totalTokens !== undefined) this.settings.totalTokens = loadedSettings.totalTokens;
       if (loadedSettings.responseTokensMax !== undefined) this.settings.responseTokensMax = loadedSettings.responseTokensMax;
       if (loadedSettings.historyTokensMax !== undefined) this.settings.historyTokensMax = loadedSettings.historyTokensMax;
+      if (loadedSettings.userName !== undefined) this.settings.userName = loadedSettings.userName;
 
     } else {
       this.save();

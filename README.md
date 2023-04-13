@@ -159,8 +159,6 @@ Or without linking:
 
 # TODO
 
-- current time in system prompt
-- user name
 - reflect instruction
 - planning
 - simple web queries
