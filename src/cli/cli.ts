@@ -10,6 +10,7 @@ import { hideBin } from "yargs/helpers";
 import { respondToChat } from "../core/chat";
 import { generateImage } from "../core/image";
 import { Utils } from "../core/utils";
+import { runWebSearch } from "../core/web-search";
 
 dotenv.config();
 
@@ -108,6 +109,10 @@ async function cli() {
   };
 
   prompt = Utils.insertClipboardText(prompt);
+
+  if (argv.test) {
+    return await runTest(prompt, cliConfig, argv);
+  }
 
   if (cliConfig.verbose) {
     Utils.logVerboseLines(
@@ -252,5 +257,14 @@ async function doImage(prompt: string, config: CliConfig) {
     resultText = `Saved ${result.data.length} new image${s} to Cass directory (\`cass --dir\`)`;
   }
   console.log(chalk.greenBright(`> ${resultText}`));
+
+}
+
+async function runTest(prompt: string, cliConfig: CliConfig, argv: any) {
+
+  runWebSearch("jack russels in norfolk", {
+    resultsCount: 10,
+    verbose: true,
+  });
 
 }
