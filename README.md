@@ -3,9 +3,13 @@
 
 A ChatGPT-powered assistant in the console (**C**onsole **Ass**istant).
 
-Includes chat history, image generation, and rudimentary web search.
-
 ![npm (scoped)](https://img.shields.io/npm/v/@neonfish/cass)
+
+Includes:
+- Chat history
+- Image generation
+- Rudimentary web search (using DuckDuckGo)
+- Retrieval of website text (similar to a "reader mode")
 
 # Quickstart
 
@@ -84,6 +88,10 @@ $ cass -i realistic photograph of a rubber duck winking and grinning cheekily, b
 > Saved 1 new image to Cass directory (`cass --dir`)
 ```
 
+Images can also be generated using the normal chat prompt and the `IMAGE` response tool.
+
+Simply request an image, and Cass will return a prompt for the image generator.
+
 ## Clipboard
 
 Text can be inserted from the clipboard. This is useful for including long multiline text, code, etc.
@@ -136,6 +144,32 @@ An example is shown below, including the original prompt, the expanded confirmat
 ### Web Search
 
 If information more recent than the September 2021 cut-off is required, Cass can make simple web searches automatically. This capability is not always used, and sometimes does not yield the required information depending on the generated search query.
+
+### Website Content
+
+Cass can read the request the text content of websites. Javascript is not executed, so some sites are inaccessable. The website text content is "read" by Cass without any formatting, so some hierarchy and context of the content may be lost.
+
+Example:
+
+```
+$ cass "summarise https://neon.fish for me"
+```
+
+### Image Generation
+
+Cass can return a prompt for the image generator which is then called directly. Additional adjectives may be added to make the result more intersting or appealing.
+
+Example:
+
+```
+$ cass give me a picture of something really unsettling
+
+> give me a picture of something really unsettling
+
+> IMAGE A dark, abandoned room with broken furniture, creepy dolls scattered on the floor, and eerie shadows cast by flickering candlelight
+
+> Saved 1 new image to Cass directory (`cass --dir`)
+```
 
 ## Flags:
 

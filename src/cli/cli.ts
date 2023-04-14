@@ -280,12 +280,30 @@ async function doChat(prompt: string, config: CliConfig) {
       prompt = `Summary of webpage at "${url}": ${JSON.stringify(summary)}`
     }
 
+    // IMAGE
+    const imageLine = chatText.split("\n").find(line => line.startsWith("IMAGE"));
+    if (imageLine && !pendingAction) {
+      // pendingAction = true;
+
+      let imagePrompt = imageLine.replace("IMAGE", "");
+      if (imagePrompt.startsWith(":")) {
+        imagePrompt = imagePrompt.replace(":", "");
+      }
+      imagePrompt = imagePrompt.trim();
+
+      const imageResult = await doImage(imagePrompt, config);
+
+      // prompt = imageResult
+      //   ? `[Image generated successfully]`
+      //   : `[Error generating image]`;
+    }
+
     // If a tool has written results to the prompt, the while loop will not exit
   }
 
 }
 
-async function doImage(prompt: string, config: CliConfig) {
+async function doImage(prompt: string, config: CliConfig): Promise<boolean> {
 
   const spinnerText = "thinking...";
   const spinner = ora({
@@ -305,7 +323,7 @@ async function doImage(prompt: string, config: CliConfig) {
   });
   spinner.stop();
 
-  if (!result) return;
+  if (!result) return false;
 
   let resultText = "";
   if (typeof result === "string") {
@@ -316,6 +334,7 @@ async function doImage(prompt: string, config: CliConfig) {
   }
   console.log(chalk.greenBright(`> ${resultText}`));
 
+  return true;
 }
 
 async function runTest(prompt: string, cliConfig: CliConfig, argv: any) {
