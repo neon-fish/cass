@@ -79,7 +79,7 @@ export async function runWebSearch(query: string, opts?: {
     let link: string | undefined = (rawLink ?? "")
     link = link.replace("//duckduckgo.com/l/?uddg=", "");
     link = link.split("&rut=")[0] ?? "";
-    link = link ? link : undefined,
+    link = link ? decodeURIComponent(link) : undefined,
 
     results.push({
       title,
@@ -97,7 +97,10 @@ export async function runWebSearch(query: string, opts?: {
     Utils.logVerboseLines(
       "Web Search: result titles:",
       inspect(results.map(r => r.title)),
-      ""
+      "",
+      "Web Search: first result:",
+      inspect(results[0]),
+      "",
     );
   }
 

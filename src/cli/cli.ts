@@ -11,7 +11,7 @@ import { respondToChat } from "../core/chat";
 import { generateImage } from "../core/image";
 import { Utils } from "../core/utils";
 import { runWebSearch } from "../core/tools/web-search";
-import { openUrl } from "../core/tools/open-url";
+import { webpageSummary } from "../core/tools/webpage-summary";
 import { Settings } from "../core/settings";
 
 dotenv.config();
@@ -243,8 +243,9 @@ async function doChat(prompt: string, config: CliConfig) {
 
     // If the result is a tool instruction, use the tool, and return the result
 
+    // SEARCH
     const searchLine = chatText.split("\n").find(line => line.startsWith("SEARCH"));
-    if (searchLine) {
+    if (searchLine && !pendingAction) {
       pendingAction = true;
 
       let query = searchLine.replace("SEARCH", "");
@@ -259,6 +260,24 @@ async function doChat(prompt: string, config: CliConfig) {
       });
 
       prompt = `Search result: ${JSON.stringify(searchResult)}`;
+    }
+
+    // WEBPAGE
+    const webpageLine = chatText.split("\n").find(line => line.startsWith("WEBPAGE"));
+    if (webpageLine && !pendingAction) {
+      pendingAction = true;
+
+      let url = webpageLine.replace("WEBPAGE", "");
+      if (url.startsWith(":")) {
+        url = url.replace(":", "");
+      }
+      url = url.trim();
+
+      const summary = await webpageSummary(url, {
+        verbose: config.verbose,
+      });
+
+      prompt = `Summary of webpage at "${url}": ${JSON.stringify(summary)}`
     }
 
     // If a tool has written results to the prompt, the while loop will not exit
@@ -301,7 +320,10 @@ async function doImage(prompt: string, config: CliConfig) {
 
 async function runTest(prompt: string, cliConfig: CliConfig, argv: any) {
 
-  openUrl("https%3A%2F%2Fwww.freecodecamp.org%2Fnews%2Fthe%2Dultimate%2Dguide%2Dto%2Dweb%2Dscraping%2Dwith%2Dnode%2Djs%2Ddaa2027dcd3%2F")
+  // openUrl("https%3A%2F%2Fwww.freecodecamp.org%2Fnews%2Fthe%2Dultimate%2Dguide%2Dto%2Dweb%2Dscraping%2Dwith%2Dnode%2Djs%2Ddaa2027dcd3%2F");
+  const page = await webpageSummary("https://neon.fish", {
+    verbose: cliConfig.verbose,
+  });
   
   // runWebSearch("jack russels in norfolk", {
   //   resultsCount: 10,
