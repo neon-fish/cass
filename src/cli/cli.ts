@@ -12,6 +12,7 @@ import { generateImage } from "../core/image";
 import { Utils } from "../core/utils";
 import { runWebSearch } from "../core/tools/web-search";
 import { openUrl } from "../core/tools/open-url";
+import { Settings } from "../core/settings";
 
 dotenv.config();
 
@@ -55,6 +56,10 @@ const argsParser = yargs(hideBin(process.argv))
     alias: "t",
     describe: "Specify the maximum number of tokens to use in the response",
   })
+  .option("user-name", {
+    alias: "user",
+    describe: "Update the name of the user",
+  })
   .option("up", {
     boolean: true,
     alias: ["update", "upgrade"],
@@ -81,6 +86,7 @@ interface CliConfig {
   clear: boolean,
   apiKey: string | undefined,
   tokens: number | undefined,
+  userName: string | undefined,
   update: boolean,
   gpt3: boolean,
   gpt4: boolean,
@@ -96,12 +102,12 @@ async function cli() {
 
   const cliConfig: CliConfig = {
     verbose: Boolean(argv.verbose),
-    // models: Utils.argIsTrue(argv["model"] || argv["models"] || argv["m"]),
     cassDir: Boolean(argv.cassDir),
     dryRun: Boolean(argv.dryRun),
     clear: Boolean(argv.clear),
     apiKey: argv.apiKey?.toString() ? argv.apiKey.toString() : undefined,
     tokens: argv.tokens?.toString() ? Number(argv.tokens.toString()) : undefined,
+    userName: argv.userName?.toString() ? argv.userName.toString() : undefined,
     update: Boolean(argv.update),
     gpt3: Boolean(argv.gpt3),
     gpt4: Boolean(argv.gpt4),
@@ -127,7 +133,6 @@ async function cli() {
       `IMAGES: ${cliConfig.imageCount}`,
       `🚩 IMAGE: ${cliConfig.image}`,
       `🚩 VERBOSE: ${cliConfig.verbose}`,
-      // `🚩 MODELS: ${cliConfig.models}`,
       `🚩 CASS DIR: ${cliConfig.cassDir}`,
       `🚩 DRY RUN: ${cliConfig.dryRun}`,
       `🚩 CLEAR: ${cliConfig.clear}`,
@@ -154,6 +159,12 @@ async function cli() {
     Utils.storeApiKey(cliConfig.apiKey);
     console.log(chalk.gray("(stored API key)"));
   }
+  if (cliConfig.userName) {
+    Settings.settings.userName = cliConfig.userName;
+    Settings.save();
+    console.log(chalk.gray("(saved user name)"));
+  }
+
   console.log("");
 
   console.log(chalk.cyanBright(`> ${prompt}`));

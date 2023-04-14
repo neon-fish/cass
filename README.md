@@ -146,6 +146,7 @@ If information more recent than the September 2021 cut-off is required, Cass can
 - `--cls` or `--clear`: archive the recent message history
 - `--cass-dir`: open the config directory in file explorer
 - `--api-key`: set the OpenAI API key to use
+- `--user-name` or `--user`: store the name of the user
 - `--gpt3` or `--3`: force the use of GPT 3.5 Turbo (note two dashes for alias)
 - `--gpt4` or `--4`: force the use of GPT 4 (note two dashes for alias)
 - `--image` or `--img` or `-i`: use the prompt to generate an image instead of chat
