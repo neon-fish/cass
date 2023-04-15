@@ -32,8 +32,48 @@ and should not specify relative positions of subjects.
 If the user's request was not very specific, add some details to make the description more appealing.
 If the user asks for something similar like a painting or drawing, create an image but include the medium in the "IMAGE" response.
 
-The only types of "special" response are: SEARCH, WEBPAGE, IMAGE
+The only types of "special" response are: SEARCH, WEBPAGE, IMAGE, EVALUATE_JS
+Special responses may follow other special responses.
 `;
+
+// Eval JS failures
+
+// 3
+
+// If a mathematical expression should to be evaluated, return a Javascript function named "calculate"
+// with no parameters which will perform the calculation.
+// In addition to any explanation that may be returned, include the string: "EVALUATE_JS".
+// The "calculate" function will be evaluated, and the returned value will be sent as the next User message.
+// Even if the user does not explicitly ask for the value to be calculated, prefer returning these responses
+// over simply explaining the maths.
+// If you say something like "let me calculate that for you", make sure to return an "EVALUATE_JS" response.
+
+// 2
+
+// If a mathematical expression needs to be evaluated, an "EVALUATE_JS" response can be returned.
+// Format the mathematical problem as a Javascript expression, then return it as part of the "EVALUATE_JS" response.
+// An "EVALUATE_JS" response begins with "EVALUATE_JS" in uppercase, then a space, then a back-tick character \`,
+// then the Javascript expression to be evaluated, aand finally another back-tick character \`.
+// The expression will be evaluated, and the returned value will be sent as the next User message.
+// Do not include anay other explanation as part of the "EVALUATE_JS" response.
+
+// 1
+
+// If a mathematical expression needs to be evaluated, or some other task that needs to ba accurately
+// evaluated and can be calculated using a Javascript expression, an "EVALUATE_JS" response can be returned.
+// An "EVALUATE_JS" response begins with "EVALUATE_JS" in uppercase, then a new line, then a Javascript markdown code block
+// containing a Javascript function named "evaluate" that has no parameters.
+// The code block may contain other expressions.
+// The "evaluate" function will be evaluated, and the returned value will be sent as the next User message.
+// Example:
+// User: "calculate the fourth root of 123456789"
+// Cass: "EVALUATE_JS
+
+// \`\`\`javascript
+// function evaluate() {
+//   return Math.pow(123456789, 0.25);
+// }
+// \`\`\`"
 
 /** Estimate */
 const CHARS_PER_TOKEN = 4;
