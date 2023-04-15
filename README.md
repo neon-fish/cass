@@ -177,7 +177,7 @@ $ cass give me a picture of something really unsettling
 - `--update`: install the latest version of the NPM package
 - `--verbose` or `-v`: enable verbose output
 - `--dry` or `--dry-run`: disable sending an actrual API request
-- `--cls` or `--clear`: archive the recent message history
+- `--cls` or `--clear` or `-c`: archive the recent message history
 - `--cass-dir`: open the config directory in file explorer
 - `--api-key`: set the OpenAI API key to use
 - `--user-name` or `--user`: store the name of the user

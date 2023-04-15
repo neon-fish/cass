@@ -45,7 +45,7 @@ const argsParser = yargs(hideBin(process.argv))
   })
   .option("clear", {
     boolean: true,
-    alias: "cls",
+    alias: ["cls", "c"],
     describe: "Archive the recent history",
   })
   .option("api-key", {
