@@ -6,6 +6,7 @@ import inquirer from "inquirer";
 import { ChatCompletionRequestMessage } from "openai";
 import { homedir, platform } from "os";
 import { join } from "path";
+import fetch from 'node-fetch';
 
 const HISTORY_FILENAME = "history.json";
 const API_KEY_FILENAME = "openai-api-key";
@@ -203,6 +204,32 @@ export class Utils {
 
     });
     
+  }
+
+  static async findLocationFromIp() {
+    const url = "http://ip-api.com/json/";
+    const response = await fetch(url, {
+      headers: {
+        "accept": "application/json",
+      },
+    });
+    const result = await response.json();
+    const f = {
+      "status":"success",
+      "country":"United Kingdom",
+      "countryCode":"GB",
+      "region":"ENG",
+      "regionName":"England",
+      "city":"London",
+      "zip":"SE10",
+      "lat":51.4805,
+      "lon":-0.0113,
+      "timezone":"Europe/London",
+      "isp":"31173 Services AB",
+      "org":"31173 Services AB",
+      "as":"AS39351 31173 Services AB",
+      "query":"141.98.252.162",
+    }
   }
 
 }

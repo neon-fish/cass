@@ -56,10 +56,6 @@ const argsParser = yargs(hideBin(process.argv))
     alias: "t",
     describe: "Specify the maximum number of tokens to use in the response",
   })
-  .option("user-name", {
-    alias: "user",
-    describe: "Update the name of the user",
-  })
   .option("up", {
     boolean: true,
     alias: ["update", "upgrade"],
@@ -75,6 +71,14 @@ const argsParser = yargs(hideBin(process.argv))
     alias: "4",
     describe: "Force the use of GPT 4 for this prompt",
   })
+  .option("user-name", {
+    alias: "user",
+    describe: "Update the name of the user",
+  })
+  .option("user-location", {
+    alias: "user",
+    describe: `Update the approximate location of the user ("auto" to find by IP)`,
+  })
   .epilog('(https://github.com/neon-fish/cass)')
   ;
 
@@ -86,12 +90,13 @@ interface CliConfig {
   clear: boolean,
   apiKey: string | undefined,
   tokens: number | undefined,
-  userName: string | undefined,
   update: boolean,
   gpt3: boolean,
   gpt4: boolean,
   image: boolean,
   imageCount: number | undefined,
+  userName: string | undefined,
+  userLocation: string | undefined,
 }
 
 async function cli() {
@@ -107,12 +112,13 @@ async function cli() {
     clear: Boolean(argv.clear),
     apiKey: argv.apiKey?.toString() ? argv.apiKey.toString() : undefined,
     tokens: argv.tokens?.toString() ? Number(argv.tokens.toString()) : undefined,
-    userName: argv.userName?.toString() ? argv.userName.toString() : undefined,
     update: Boolean(argv.update),
     gpt3: Boolean(argv.gpt3),
     gpt4: Boolean(argv.gpt4),
     image: Boolean(argv.image),
     imageCount: argv.count?.toString() ? Number(argv.count.toString()) : undefined,
+    userName: argv.userName?.toString() ? argv.userName.toString() : undefined,
+    userLocation: argv.userLocation?.toString() ? argv.userLocation.toString() : undefined,
   };
 
   prompt = Utils.insertClipboardText(prompt);
@@ -163,6 +169,15 @@ async function cli() {
     Settings.settings.userName = cliConfig.userName;
     Settings.save();
     console.log(chalk.gray("(saved user name)"));
+  }
+  if (cliConfig.userLocation) {
+    if (cliConfig.userLocation === "auto") {
+      // TODO
+    } else {
+      Settings.settings.userLocation = cliConfig.userLocation;
+    }
+    Settings.save();
+    console.log(chalk.gray("(saved user location)"));
   }
 
   console.log("");

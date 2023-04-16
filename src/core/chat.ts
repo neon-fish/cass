@@ -32,7 +32,7 @@ and should not specify relative positions of subjects.
 If the user's request was not very specific, add some details to make the description more appealing.
 If the user asks for something similar like a painting or drawing, create an image but include the medium in the "IMAGE" response.
 
-The only types of "special" response are: SEARCH, WEBPAGE, IMAGE, EVALUATE_JS
+The only types of "special" response are: SEARCH, WEBPAGE, IMAGE
 Special responses may follow other special responses.
 `;
 
