@@ -113,10 +113,15 @@ export async function respondToChat(prompt: string, opts?: {
   const systemUserName = Settings.settings.userName
     ? `The user's name is: ${Settings.settings.userName}.`
     : "";
+  const systemUserLocation = Settings.settings.userLocation
+    ? `The user's approximate location is: ${Settings.settings.userLocation}.`
+    : "";
+
   const systemMessage = [
     DEFAULT_SYSTEM_MESSAGE,
     "Additional Information:",
     systemUserName,
+    systemUserLocation,
     `The current time is: ${new Date().toISOString()}.`,
   ].join("\n\n");
 

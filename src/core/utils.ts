@@ -207,14 +207,19 @@ export class Utils {
   }
 
   static async findLocationFromIp() {
+
     const url = "http://ip-api.com/json/";
     const response = await fetch(url, {
       headers: {
         "accept": "application/json",
       },
+    }).catch(err => {
+      console.log(chalk.redBright("Error finding location from IP:", err));
+      return undefined
     });
-    const result = await response.json();
-    const f = {
+    if (!response) return undefined;
+
+    const exampleResult = {
       "status":"success",
       "country":"United Kingdom",
       "countryCode":"GB",
@@ -229,7 +234,32 @@ export class Utils {
       "org":"31173 Services AB",
       "as":"AS39351 31173 Services AB",
       "query":"141.98.252.162",
-    }
+    };
+    const result = (await response.json()) as {
+      status: string;
+      country: string;
+      countryCode: string;
+      region: string;
+      regionName: string;
+      city: string;
+      zip: string;
+      lat: number;
+      lon: number;
+      timezone: string;
+      isp: string;
+      org: string;
+      as: string;
+      query: string;
+    };
+
+    const locationString = [
+      result.city,
+      result.regionName,
+      result.country,
+    ].filter(v => v).join(", ");
+    if (!locationString) return undefined;
+
+    return locationString;
   }
 
 }

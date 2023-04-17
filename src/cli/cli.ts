@@ -72,11 +72,11 @@ const argsParser = yargs(hideBin(process.argv))
     describe: "Force the use of GPT 4 for this prompt",
   })
   .option("user-name", {
-    alias: "user",
+    alias: "name",
     describe: "Update the name of the user",
   })
   .option("user-location", {
-    alias: "user",
+    alias: "location",
     describe: `Update the approximate location of the user ("auto" to find by IP)`,
   })
   .epilog('(https://github.com/neon-fish/cass)')
@@ -172,7 +172,7 @@ async function cli() {
   }
   if (cliConfig.userLocation) {
     if (cliConfig.userLocation === "auto") {
-      // TODO
+      Settings.settings.userLocation = await Utils.findLocationFromIp();
     } else {
       Settings.settings.userLocation = cliConfig.userLocation;
     }
