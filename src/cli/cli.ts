@@ -20,6 +20,16 @@ dotenv.config();
 const argsParser = yargs(hideBin(process.argv))
   .usage(`USAGE:\nSimply type a question or instruction. Wrap the input in quotes if the prompt contains special characters. Example:\n$ cass tell me a joke about programming\n\nTo insert text from the clipboard, use one of the placeholders. Example:\n$ cass "what's wrong with this function: <clipboard>"`)
   .help('h').alias('h', 'help')
+  .option("ui", {
+    boolean: true,
+    // alias: ["s", "ui"],
+    describe: "Start the web server and open the web-based UI",
+  })
+  .option("serve", {
+    boolean: true,
+    alias: ["s"],
+    describe: "Start the web server without opening the UI",
+  })
   .option("image", {
     boolean: true,
     alias: ["img", "i"],
@@ -37,7 +47,7 @@ const argsParser = yargs(hideBin(process.argv))
   .option("dir", {
     boolean: true,
     alias: "cass-dir",
-    describe: "Open the Cass config dir in file explorer",
+    describe: "Open the Cass config directory in file explorer",
   })
   .option("dry", {
     boolean: true,
@@ -84,6 +94,8 @@ const argsParser = yargs(hideBin(process.argv))
   ;
 
 interface CliConfig {
+  ui: boolean,
+  serve: boolean,
   verbose: boolean,
   // models: boolean,
   cassDir: boolean,
@@ -107,6 +119,8 @@ async function cli() {
   let prompt = argv._.map(p => p.toString().trim()).join(" ");
 
   const cliConfig: CliConfig = {
+    ui: Boolean(argv.ui),
+    serve: Boolean(argv.serve),
     verbose: Boolean(argv.verbose),
     cassDir: Boolean(argv.cassDir),
     dryRun: Boolean(argv.dryRun),
@@ -138,6 +152,8 @@ async function cli() {
       `API KEY: "${cliConfig.apiKey}"`,
       `TOKENS: ${cliConfig.tokens}`,
       `IMAGES: ${cliConfig.imageCount}`,
+      `🚩 UI: ${cliConfig.ui}`,
+      `🚩 SERVE: ${cliConfig.serve}`,
       `🚩 IMAGE: ${cliConfig.image}`,
       `🚩 VERBOSE: ${cliConfig.verbose}`,
       `🚩 CASS DIR: ${cliConfig.cassDir}`,
@@ -180,7 +196,18 @@ async function cli() {
     Logger.aside("Saved user location");
   }
 
-  console.log("");
+  // Do these last as they return
+  if (cliConfig.ui) {
+    await Utils.openUrl(`http://localhost:3155`);
+    Logger.aside("Opened web UI");
+  }
+  if (cliConfig.ui || cliConfig.serve) {
+    Logger.aside("Starting web server");
+    require("../server/server");
+  }
+  if (cliConfig.ui || cliConfig.serve) {
+    return;
+  }
 
   Logger.user("");
   Logger.user(`> ${prompt}`);

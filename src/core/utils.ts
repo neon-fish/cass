@@ -257,4 +257,12 @@ export class Utils {
     return locationString;
   }
 
+  /**
+   * Open a given URL in the default browser
+   * @param url 
+   */
+  static async openUrl(url: string) {
+    await open(url);
+  }
+
 }
