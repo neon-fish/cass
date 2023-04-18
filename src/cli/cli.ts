@@ -13,6 +13,7 @@ import { Utils } from "../core/utils";
 import { runWebSearch } from "../core/tools/web-search";
 import { webpageSummary } from "../core/tools/webpage-summary";
 import { Settings } from "../core/settings";
+import { Logger } from "../core/logger";
 
 dotenv.config();
 
@@ -128,7 +129,7 @@ async function cli() {
   }
 
   if (cliConfig.verbose) {
-    Utils.logVerboseLines(
+    Logger.verboseLines(
       "",
       "CASS:",
       "",
@@ -150,25 +151,24 @@ async function cli() {
 
   if (cliConfig.update) {
     const updated = await Utils.update();
-    // console.log(chalk.gray("(opening Cass dir)"));
     if (updated) return;
   }
   if (cliConfig.cassDir) {
     Utils.openCassDir();
-    console.log(chalk.gray("(opening Cass dir)"));
+    Logger.aside("Opening Cass dir");
   }
   if (cliConfig.clear) {
     Utils.clearHistory();
-    console.log(chalk.gray("(cleared history)"));
+    Logger.aside("Cleared history");
   }
   if (cliConfig.apiKey) {
     Utils.storeApiKey(cliConfig.apiKey);
-    console.log(chalk.gray("(stored API key)"));
+    Logger.aside("Stored API key");
   }
   if (cliConfig.userName) {
     Settings.settings.userName = cliConfig.userName;
     Settings.save();
-    console.log(chalk.gray("(saved user name)"));
+    Logger.aside("Saved user name");
   }
   if (cliConfig.userLocation) {
     if (cliConfig.userLocation === "auto") {
@@ -177,13 +177,14 @@ async function cli() {
       Settings.settings.userLocation = cliConfig.userLocation;
     }
     Settings.save();
-    console.log(chalk.gray("(saved user location)"));
+    Logger.aside("Saved user location");
   }
 
   console.log("");
 
-  console.log(chalk.cyanBright(`> ${prompt}`));
-  console.log("");
+  Logger.user("");
+  Logger.user(`> ${prompt}`);
+  Logger.user("");
 
   if (cliConfig.dryRun) {
     await doDryRun(prompt, cliConfig);
@@ -194,7 +195,7 @@ async function cli() {
   }
 
   if (cliConfig.verbose) {
-    Utils.logVerboseLines(
+    Logger.verboseLines(
       "",
       "/CASS",
       "",
@@ -215,14 +216,14 @@ async function doDryRun(prompt: string, opts: CliConfig) {
   await Utils.wait(2_000);
 
   spinner.stop();
-  console.log(chalk.greenBright(`> [dry run complete]`));
+  Logger.system(`> [dry run complete]`);
 
 }
 
 async function doChat(prompt: string, config: CliConfig) {
 
   if (!prompt) {
-    return console.log(chalk.greenBright(`> No prompt`));
+    return Logger.system(`> No prompt`);
   }
 
   let pendingAction = true;
@@ -243,7 +244,7 @@ async function doChat(prompt: string, config: CliConfig) {
 
     const chatResponse = await chatResultPromise.catch(err => {
       spinner.stop();
-      console.log(chalk.redBright(`> Error generating response:`, err));
+      Logger.error(`> Error generating response:`, err);
       return undefined;
     });
     spinner.stop();
@@ -253,8 +254,8 @@ async function doChat(prompt: string, config: CliConfig) {
     const { choices, created, id, model, object, usage } = chatResponse;
     const chatText = choices[0].message?.content.trim() ?? "";
 
-    console.log(chalk.greenBright(`> ${chatText}`));
-    console.log("");
+    Logger.cass(`> ${chatText}`);
+    Logger.cass("");
 
     // If the result is a tool instruction, use the tool, and return the result
 
@@ -333,7 +334,7 @@ async function doImage(prompt: string, config: CliConfig): Promise<boolean> {
 
   const result = await resultPromise.catch(err => {
     spinner.stop();
-    console.log(chalk.redBright(`> Error generating image(s):`, err));
+    Logger.error(`> Error generating image(s):`, err);
     return undefined;
   });
   spinner.stop();
@@ -347,7 +348,7 @@ async function doImage(prompt: string, config: CliConfig): Promise<boolean> {
     const s = result.data.length === 1 ? "" : "s";
     resultText = `Saved ${result.data.length} new image${s} to Cass directory (\`cass --dir\`)`;
   }
-  console.log(chalk.greenBright(`> ${resultText}`));
+  Logger.system(`> ${resultText}`);
 
   return true;
 }

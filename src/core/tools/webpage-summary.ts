@@ -3,9 +3,9 @@ import fetch from 'node-fetch';
 import { JSDOM } from "jsdom";
 import chalk from "chalk";
 import ora from "ora";
-import { Utils } from "../utils";
 import { Readability } from "@mozilla/readability";
 import createDOMPurify from "dompurify";
+import { Logger } from "../logger";
 
 export interface PageSummary {
   title: string;
@@ -33,7 +33,7 @@ export async function webpageSummary(url: string, opts?: {
   url = decodeURIComponent(url);
 
   if (verbose) {
-    Utils.logVerboseLines(
+    Logger.verboseLines(
       // `Web Search: query: ${query}`,
       // `Web Search: param: ${queryParam}`,
       `Open Web URL: ${url}`,
@@ -41,8 +41,8 @@ export async function webpageSummary(url: string, opts?: {
     );
   }
 
-  console.log(chalk.blueBright(`> Web page: ${url}`));
-  console.log("");
+  Logger.system(`> Web page: ${url}`);
+  Logger.system("");
 
   const spinner = ora({
     text: chalk.greenBright(`opening web page...`),
@@ -54,7 +54,7 @@ export async function webpageSummary(url: string, opts?: {
       "accept": "text/html",
     },
   }).catch(err => {
-    console.error(err);
+    Logger.error(err);
     return {
       error: "",
     };
@@ -62,8 +62,8 @@ export async function webpageSummary(url: string, opts?: {
   spinner.stop();
 
   if ("error" in response) {
-    console.log(chalk.redBright(`> Opening web page failed`));
-    console.log("");
+    Logger.error(`> Opening web page failed`);
+    Logger.error("");
     return { error: response.error };
   }
 
@@ -84,8 +84,8 @@ export async function webpageSummary(url: string, opts?: {
   const article = readability.parse();
 
   if (!article) {
-    console.log(chalk.redBright(`> Parsing web page failed`));
-    console.log("");
+    Logger.error(`> Parsing web page failed`);
+    Logger.error("");
     return { error: "Could not parse returned page" };
   }
   
@@ -118,15 +118,15 @@ export async function webpageSummary(url: string, opts?: {
   
   if (verbose) {
     // console.log("Page as parsed article:", article);
-    Utils.logVerboseLines(
+    Logger.verboseLines(
       `Parsed web page at: ${url}`,
       inspect(article),
       ""
     );
   }
 
-  console.log(chalk.blueBright(`> Parsed web page: "${article.title || article.siteName || "(no title)"}" (${url})`));
-  console.log("");
+  Logger.system(`> Parsed web page: "${article.title || article.siteName || "(no title)"}" (${url})`);
+  Logger.system("");
 
   const summary: PageSummary = {
     siteName: article.siteName,

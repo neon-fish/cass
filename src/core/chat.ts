@@ -2,6 +2,7 @@ import { Configuration, CreateChatCompletionResponse, OpenAIApi } from "openai";
 import { inspect } from "util";
 import { Settings } from "./settings";
 import { Utils } from "./utils";
+import { Logger } from "./logger";
 
 const DEFAULT_SYSTEM_MESSAGE = `
 You are a virtual assistant called Cass. You are very friendly and helpful.
@@ -143,7 +144,7 @@ export async function respondToChat(prompt: string, opts?: {
   const latesthistory = Utils.getLatestHistory(allHistory, historyCharacters);
 
   if (verbose) {
-    Utils.logVerboseLines(
+    Logger.verboseLines(
       "",
       `API KEY: ${apiKey}`,
       `MODEL: ${model}`,
@@ -169,7 +170,7 @@ export async function respondToChat(prompt: string, opts?: {
   });
 
   if (verbose) {
-    Utils.logVerboseLines(
+    Logger.verboseLines(
       "",
       "RESULT:",
       inspect(response.data.choices),

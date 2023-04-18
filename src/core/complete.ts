@@ -1,6 +1,6 @@
 import { Configuration, OpenAIApi } from "openai";
 import { inspect } from "util";
-import { Utils } from "./utils";
+import { Logger } from "./logger";
 
 const PROMPT_PREFIX = `You are a virtual assistant called Cass. You are friendly and helpful. You can generate code and terminal commands, answer questions, generate text, and help with the user's work.
 
@@ -28,7 +28,7 @@ export async function completePrompt(prompt: string, opts?: {
   const maxTokens = 2048;
   const fullPrompt = PROMPT_PREFIX + prompt + PROMPT_SUFFIX;
   if (verbose) {
-    Utils.logVerboseLines(
+    Logger.verboseLines(
       "",
       `TEMPERATURE: ${temperature}`,
       `MAX TOKENS: ${maxTokens}`,
@@ -45,7 +45,7 @@ export async function completePrompt(prompt: string, opts?: {
   });
 
   if (verbose) {
-    Utils.logVerboseLines(
+    Logger.verboseLines(
       "",
       "Result:",
       inspect(response.data.choices),

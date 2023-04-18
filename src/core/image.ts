@@ -3,6 +3,7 @@ import { Utils } from "./utils";
 import fetch from 'node-fetch';
 import { writeFile } from "fs/promises";
 import { join } from "path";
+import { Logger } from "./logger";
 
 export async function generateImage(prompt: string, opts?: {
   verbose?: boolean,
@@ -31,7 +32,7 @@ export async function generateImage(prompt: string, opts?: {
   const response_format: CreateImageRequestResponseFormatEnum = "url";
 
   if (verbose) {
-    Utils.logVerboseLines(
+    Logger.verboseLines(
       "",
       `API KEY: ${apiKey}`,
       `PROMPT: ${prompt}`,
@@ -61,7 +62,7 @@ export async function generateImage(prompt: string, opts?: {
 
     else if(res.b64_json) {
       res.b64_json
-      console.error(`SAVING BASE64 IMAGES IS NOT IMPLEMENTED`);
+      Logger.error(`SAVING BASE64 IMAGES IS NOT IMPLEMENTED`);
     }
 
   }
@@ -78,7 +79,7 @@ async function downloadImage(url: string, filePath: string): Promise<void> {
     await writeFile(filePath, buffer);
     // console.log('Image saved to', filePath);
   } catch (error) {
-    console.error('Error downloading or saving image:', error);
+    Logger.error('Error downloading or saving image:', error);
   }
 }
 

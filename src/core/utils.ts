@@ -1,12 +1,13 @@
-import chalk from "chalk";
 import { exec } from 'child_process';
 import clipboard from "clipboardy";
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "fs";
 import inquirer from "inquirer";
+import fetch from 'node-fetch';
+import open from "open";
 import { ChatCompletionRequestMessage } from "openai";
 import { homedir, platform } from "os";
 import { join } from "path";
-import fetch from 'node-fetch';
+import { Logger } from "./logger";
 
 const HISTORY_FILENAME = "history.json";
 const API_KEY_FILENAME = "openai-api-key";
@@ -47,7 +48,7 @@ export class Utils {
       const regex = /(\<clipboard\>)|(\[clipboard\])|(\{clipboard\})/g;
       prompt = prompt.replace(regex, clipboardValue);
     } catch (error) {
-      console.log(chalk.gray("(could not read value from clipboard)"));
+      Logger.aside("could not read value from clipboard");
     }
 
     // console.log("prompt after clipboard tokens:", prompt);
@@ -60,12 +61,6 @@ export class Utils {
         resolve();
       }, ms);
     })
-  }
-
-  static logVerboseLines(...lines: string[]) {
-    for (const line of lines) {
-      console.log(chalk.magentaBright(line));
-    }
   }
 
   /** Get the Cass config dir path, and ensure the dir exists */
@@ -195,7 +190,7 @@ export class Utils {
       
       exec("npm i -g @neonfish/cass@latest", (error, stdout, stderr) => {
         if (error !== null) {
-          console.log(chalk.redBright(`Error updating global package:`, error));
+          Logger.error(`Error updating global package:`, error);
           return false;
         }
         console.log(stdout);
@@ -214,7 +209,7 @@ export class Utils {
         "accept": "application/json",
       },
     }).catch(err => {
-      console.log(chalk.redBright("Error finding location from IP:", err));
+      Logger.error("Error finding location from IP:", err);
       return undefined
     });
     if (!response) return undefined;

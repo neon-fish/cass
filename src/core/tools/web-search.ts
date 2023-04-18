@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import { JSDOM } from "jsdom";
 import chalk from "chalk";
 import ora from "ora";
-import { Utils } from "../utils";
+import { Logger } from "../logger";
 
 export interface SearchResult {
   title: string | undefined,
@@ -23,7 +23,7 @@ export async function runWebSearch(query: string, opts?: {
   const url = `https://html.duckduckgo.com/html?q=${queryParam}`;
 
   if (verbose) {
-    Utils.logVerboseLines(
+    Logger.verboseLines(
       `Web Search: query: ${query}`,
       `Web Search: param: ${queryParam}`,
       `Web Search: URL: ${url}`,
@@ -31,8 +31,8 @@ export async function runWebSearch(query: string, opts?: {
     );
   }
 
-  console.log(chalk.blueBright(`> Web search: ${query}`));
-  console.log("");
+  Logger.system(`> Web search: ${query}`);
+  Logger.system("");
 
   const spinner = ora({
     text: chalk.greenBright(`searching...`),
@@ -51,8 +51,8 @@ export async function runWebSearch(query: string, opts?: {
   // Sometimes it fails
   if (page.includes("error-lite@duckduckgo.com")) {
 
-    console.log(chalk.redBright(`> Web search failed`));
-    console.log("");
+    Logger.error(`> Web search failed`);
+    Logger.error("");
 
     return {
       error: "The web search failed",
@@ -94,7 +94,7 @@ export async function runWebSearch(query: string, opts?: {
   }
 
   if (verbose) {
-    Utils.logVerboseLines(
+    Logger.verboseLines(
       "Web Search: result titles:",
       inspect(results.map(r => r.title)),
       "",
@@ -104,8 +104,8 @@ export async function runWebSearch(query: string, opts?: {
     );
   }
 
-  console.log(chalk.blueBright(`> Found: "${results[0].title}", and ${results.length - 1} more`));
-  console.log("");
+  Logger.system(`> Found: "${results[0].title}", and ${results.length - 1} more`);
+  Logger.system("");
 
   return results;
 
