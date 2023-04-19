@@ -7,7 +7,8 @@ import { CliConfig } from "./input";
 
 export async function doImage(prompt: string, config: CliConfig): Promise<boolean> {
 
-  const spinnerText = "thinking...";
+  const s = config.imageCount === 1 ? "" : "s";
+  const spinnerText = `generating image${s}...`;
   const spinner = ora({
     text: chalk.greenBright(spinnerText),
     color: "green",
