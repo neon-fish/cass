@@ -16,23 +16,29 @@ module.exports = {
       colors: {
         // (Moderate Blue) - This friendly and approachable color can be used for buttons, links, and other interactive elements.
         primary: {
-          DEFAULT: "#4A90E2",
+          // DEFAULT: "#4A90E2",
+          DEFAULT: colors.sky[600],
+          contrast: "#fff",
         },
         // (Vivid Yellow) - This warm and inviting color can be used for highlights and accents, such as notifications or important messages.
         secondary: {
           DEFAULT: "#FFC107",
+          contrast: "#333",
         },
         // (Vibrant Purple) - This bold color can be used sparingly for extra emphasis on specific elements or actions.
         accent: {
           DEFAULT: "#9C27B0",
+          contrast: "#fff",
         },
         // (Light Gray) - This neutral color provides a clean and minimalistic background that is easy on the eyes.
         light: {
           DEFAULT: "#F5F5F5",
+          contrast: "#333",
         },
         // (Very Dark Gray) - This color provides a high contrast against the background, ensuring readability.
         dark: {
           DEFAULT: "#333333",
+          contrast: "#fff",
         },
       },
     },

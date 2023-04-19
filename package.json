@@ -10,8 +10,12 @@
     "cass": "./dist/cli/cli.js"
   },
   "scripts": {
-    "dev": "tsc --watch --preserveWatchOutput",
-    "build": "rimraf dist && tsc",
+    "dev": "concurrently \"npm:dev-cli\" \"npm:dev-client\"",
+    "dev-cli": "tsc --watch --preserveWatchOutput",
+    "dev-client": "vite",
+    "build": "npm run build-cli && npm run build-client",
+    "build-cli": "rimraf dist && tsc",
+    "build-client": "vite build",
     "start": "node dist/cli/cli.js",
     "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -45,6 +49,8 @@
     "@types/ws": "^8.5.4",
     "@types/yargs": "^17.0.23",
     "autoprefixer": "^10.4.14",
+    "concurrently": "^8.0.1",
+    "mithril": "^2.2.2",
     "pkg": "^5.8.1",
     "postcss": "^8.4.22",
     "rimraf": "^4.4.0",
