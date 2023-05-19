@@ -206,7 +206,3 @@ Or without linking:
 
 - reflect instruction
 - planning
-- simple web queries
-- ~~streaming responses~~
-  - multi-stage interactions would be janky while streaming responses
-- cancelling requests
